@@ -196,9 +196,6 @@ const App: React.FC = () => {
                     <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white">Epoch Forge</h1>
                     <div className="flex flex-col items-center gap-1 mb-2">
                         <DjonStNixLogo className="scale-75 md:scale-90" />
-                        <div className="text-[9px] font-bold uppercase tracking-[0.4em] text-slate-700">
-                            Digital Identity Systems
-                        </div>
                     </div>
                     <p className={`font-medium text-lg transition-colors duration-500 ${isForged ? 'text-[#5B8CFF]' : 'text-slate-500'}`}>
                         {getHeaderText()}
