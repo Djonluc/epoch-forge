@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { PlayerCiv, GeneratedItem, Difficulty } from '../types';
 import { HEADINGS } from '../constants';
 import { StrengthBar } from './StrengthBar';
-import { 
-    RefreshCw, 
-    ChevronDown, 
+import {
+    RefreshCw,
+    ChevronDown,
     ChevronRight,
     Copy,
     Check,
@@ -38,16 +38,16 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
     // In-Game Checklist Format
     const handleCopy = () => {
         let text = `CIV BUILDER CHECKLIST - ${civ.playerName}\n`;
-        text += `Map: ${civ.summary} (Power: ${civ.powerScore})\n`;
+        text += `Archetype: ${civ.summary} (Power: ${civ.powerScore})\n`;
         text += `----------------------------------------\n`;
-        
+
         // Flatten list
         civ.items.forEach((item, i) => {
             text += `${i + 1}. [ ] ${item.name} (${item.cost})\n`;
         });
-        
+
         text += `\nRemaining Points: ${100 - civ.pointsSpent}\n`;
-        
+
         navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -88,11 +88,11 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
 
     // Score Color Logic
     const getScoreColor = (score: number) => {
-        if (score >= 80) return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20"; 
-        if (score >= 50) return "text-amber-400 bg-amber-400/10 border-amber-400/20"; 
-        return "text-rose-400 bg-rose-400/10 border-rose-400/20"; 
+        if (score >= 80) return "text-emerald-400 bg-emerald-400/10 border-emerald-400/20";
+        if (score >= 50) return "text-amber-400 bg-amber-400/10 border-amber-400/20";
+        return "text-rose-400 bg-rose-400/10 border-rose-400/20";
     };
-    
+
     // Difficulty Dot
     const getDifficultyColor = (diff: Difficulty) => {
         if (diff === 'Beginner') return 'bg-emerald-500';
@@ -104,7 +104,7 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
     const getCostExplanation = (item: GeneratedItem) => {
         if (!item.inflationApplied || item.inflationApplied <= 0) return undefined;
         if (!item.category) return undefined;
-        
+
         const heading = HEADINGS.find(h => h.name === item.category);
         if (!heading || heading.bonusCost === 0) return undefined;
 
@@ -117,7 +117,7 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
 
     return (
         <div className={`bg-[#171A21] rounded-3xl p-6 md:p-7 w-full relative overflow-hidden transition-all hover:scale-[1.01] hover:shadow-2xl hover:z-10 border-l-4 ${accentClass} ${tiltClass} ${isCompact ? 'flex flex-col h-full' : ''}`}>
-            
+
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
                 <div className="flex items-center gap-3">
@@ -131,7 +131,7 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
                                 {getIdentityTag(civ.primaryCategory)}
                             </div>
                             <div className="w-1 h-1 bg-slate-700 rounded-full"></div>
-                             {/* Difficulty Indicator */}
+                            {/* Difficulty Indicator */}
                             <div className="flex items-center gap-1.5" title={`${civ.difficulty} Difficulty`}>
                                 <div className={`w-2 h-2 rounded-full ${getDifficultyColor(civ.difficulty)} shadow-sm`}></div>
                                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider hidden sm:block">{civ.difficulty}</span>
@@ -162,21 +162,21 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
             <div className={`pl-[52px] ${isCompact ? 'mb-4' : ''}`}>
                 {!isCompact && (
                     <>
-                    <p className="text-base text-slate-300 leading-relaxed font-medium opacity-90 mb-6">
-                        {civ.summary}
-                         <button 
-                            onClick={() => setShowReasoning(!showReasoning)}
-                            className="inline-flex items-center ml-2 text-slate-600 hover:text-[#5B8CFF] transition-colors"
-                            title="Why this generation?"
-                        >
-                            <HelpCircle size={14} />
-                        </button>
-                    </p>
-                    {showReasoning && (
-                         <div className="mb-6 p-3 bg-white/5 rounded-lg border border-white/5 text-xs text-slate-400 italic">
-                            "{civ.reasoning}"
-                        </div>
-                    )}
+                        <p className="text-base text-slate-300 leading-relaxed font-medium opacity-90 mb-6">
+                            {civ.summary}
+                            <button
+                                onClick={() => setShowReasoning(!showReasoning)}
+                                className="inline-flex items-center ml-2 text-slate-600 hover:text-[#5B8CFF] transition-colors"
+                                title="Why this generation?"
+                            >
+                                <HelpCircle size={14} />
+                            </button>
+                        </p>
+                        {showReasoning && (
+                            <div className="mb-6 p-3 bg-white/5 rounded-lg border border-white/5 text-xs text-slate-400 italic">
+                                "{civ.reasoning}"
+                            </div>
+                        )}
                     </>
                 )}
 
@@ -191,7 +191,7 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
             {/* Expandable Details - Hide in Compact Mode */}
             {!isCompact && (
                 <div className="pl-[52px]">
-                    <button 
+                    <button
                         onClick={() => setExpanded(!expanded)}
                         className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-white/5 transition-colors mb-2 text-xs font-bold uppercase tracking-wider text-slate-500 group"
                     >
@@ -217,7 +217,7 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
                                             return (
                                                 <li key={idx} className="text-sm flex justify-between items-start group">
                                                     <span className="text-slate-300 group-hover:text-white transition-colors">{item.name}</span>
-                                                    <div 
+                                                    <div
                                                         className="flex items-center font-mono text-xs cursor-help ml-4"
                                                         title={explanation}
                                                     >
@@ -243,7 +243,7 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
 
             {/* Actions - Pushed to bottom in Compact Mode */}
             <div className={`mt-6 pt-4 border-t border-white/5 flex justify-between items-center pl-[52px] ${isCompact ? 'mt-auto' : ''}`}>
-                 <button 
+                <button
                     onClick={onReroll}
                     disabled={civ.rerollUsed || isTournament}
                     className={`p-2 -ml-2 rounded-lg transition-colors group flex items-center gap-2 ${civ.rerollUsed || isTournament ? 'text-slate-700 cursor-not-allowed' : 'text-slate-600 hover:text-white hover:bg-white/5'}`}
@@ -256,11 +256,11 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
                 </button>
 
                 {!isCompact && (
-                    <button 
+                    <button
                         onClick={handleCopy}
                         className="text-slate-600 hover:text-[#5B8CFF] transition-colors flex items-center gap-2 text-xs font-bold uppercase tracking-wider"
                     >
-                        {copied ? <Check size={14} className="text-emerald-400"/> : <ListChecks size={14} />}
+                        {copied ? <Check size={14} className="text-emerald-400" /> : <ListChecks size={14} />}
                         {copied ? "Copied" : "Checklist"}
                     </button>
                 )}
