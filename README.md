@@ -1,3 +1,7 @@
+<div align="center">
+<img width="800" alt="DjonStNix Banner" src="./banner.png" />
+</div>
+
 # Epoch Forge
 
 **Randomized Civilization Builder for Empire Earth**

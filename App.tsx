@@ -6,6 +6,7 @@ import { SetupScreen } from './components/SetupScreen';
 import { CivCard } from './components/CivCard';
 import { DEFAULT_NAMES, MAP_TYPES, PRESET_MODES, POINT_MODES, EPOCHS } from './constants';
 import { Download, Loader2, Globe, Scale, Hourglass, LayoutGrid, Columns, Trophy, Link as LinkIcon, Check } from 'lucide-react';
+import { DjonStNixLogo } from './components/DjonStNixLogo';
 
 const App: React.FC = () => {
     // Default Config State
@@ -16,7 +17,7 @@ const App: React.FC = () => {
         startEpoch: 1,
         endEpoch: 15,
         seed: `EF-${Math.floor(Math.random() * 10000)}`,
-        
+
         // Active
         preset: 'Casual' as PresetMode,
         pointUsage: 'Efficient' as PointUsageMode,
@@ -50,15 +51,15 @@ const App: React.FC = () => {
     // Dynamic Header Text
     const getHeaderText = () => {
         if (!isForged) return "Setting up a match...";
-        
+
         const parts = [];
         parts.push(config.isMapRandom ? "Random World" : `${config.mapType} World`);
         parts.push(config.isPresetRandom ? "Random Rules" : config.preset);
-        
-        const epochText = config.isEndEpochRandom 
-            ? `${epochName(config.startEpoch)} → ?` 
+
+        const epochText = config.isEndEpochRandom
+            ? `${epochName(config.startEpoch)} → ?`
             : `${epochName(config.startEpoch)} → ${epochName(config.endEpoch)}`;
-        
+
         return `${parts.join(" · ")} · ${epochText}`;
     };
 
@@ -80,13 +81,13 @@ const App: React.FC = () => {
 
     const handleForge = (cfgOverride?: AppConfig) => {
         const finalConfig = cfgOverride ? { ...cfgOverride } : { ...config };
-        
+
         setIsForging(true);
         setIsForged(false);
 
         // 1. Resolve Random Rules using Seeded RNG (Match-level reproducibility)
         const matchRng = new SeededRNG(`match-rules-${finalConfig.seed}`);
-        
+
         // Resolve Map
         if (finalConfig.isMapRandom && finalConfig.allowedMaps.length > 0) {
             const index = Math.floor(matchRng.next() * finalConfig.allowedMaps.length);
@@ -118,15 +119,15 @@ const App: React.FC = () => {
         const quota = Math.floor(finalConfig.playerNames.length / 2);
         const civRng = new SeededRNG(finalConfig.seed);
         const indices = finalConfig.playerNames.map((_, i) => i);
-        
+
         for (let i = indices.length - 1; i > 0; i--) {
             const j = Math.floor(civRng.next() * (i + 1));
             [indices[i], indices[j]] = [indices[j], indices[i]];
         }
-        
+
         const forcedIndices = new Set(indices.slice(0, quota));
 
-        const generated = finalConfig.playerNames.map((name, idx) => 
+        const generated = finalConfig.playerNames.map((name, idx) =>
             generateCivForPlayer(finalConfig, name, idx, undefined, forcedIndices.has(idx))
         );
 
@@ -136,7 +137,7 @@ const App: React.FC = () => {
             setCivs(generated);
             setIsForged(true);
             setIsForging(false);
-            
+
             setTimeout(() => {
                 document.getElementById('results-feed')?.scrollIntoView({ behavior: 'smooth' });
             }, 100);
@@ -149,14 +150,14 @@ const App: React.FC = () => {
         if (resolvedConfig.preset === 'Tournament') return;
 
         const player = civs[index];
-        
+
         // Safety check: Prevent usage if already used
         if (player.rerollUsed) return;
 
         // Deterministic sub-seed: MainSeed - PlayerName - Index - REROLL
         // This ensures if you reload the same seed, the reroll result is identical
         const newSeed = `${resolvedConfig.seed}-${player.playerName}-${index}-REROLL`;
-        
+
         const newCiv = generateCivForPlayer(resolvedConfig, player.playerName, index, newSeed);
         newCiv.rerollUsed = true; // Mark as used
         newCiv.reasoning += " (Rerolled)"; // Update reasoning to reflect change
@@ -189,12 +190,15 @@ const App: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#0F1117] text-slate-200 pb-20 font-sans">
             <div className="max-w-4xl mx-auto px-4 pt-10 md:pt-16 space-y-12">
-                
+
                 {/* Header */}
                 <div className="text-center space-y-3 mb-8">
                     <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white">Epoch Forge</h1>
-                    <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-600 mb-2">
-                        Created by <a href="https://www.youtube.com/@Djonluc" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-[#5B8CFF] transition-colors cursor-pointer">DjonLuc</a>
+                    <div className="flex flex-col items-center gap-1 mb-2">
+                        <DjonStNixLogo className="scale-75 md:scale-90" />
+                        <div className="text-[9px] font-bold uppercase tracking-[0.4em] text-slate-700">
+                            Digital Identity Systems
+                        </div>
                     </div>
                     <p className={`font-medium text-lg transition-colors duration-500 ${isForged ? 'text-[#5B8CFF]' : 'text-slate-500'}`}>
                         {getHeaderText()}
@@ -216,7 +220,7 @@ const App: React.FC = () => {
                             </div>
                         ) : (
                             <>
-                                <button 
+                                <button
                                     onClick={() => handleForge()}
                                     className="group relative inline-flex items-center justify-center px-12 py-6 font-black text-white transition-all duration-500 bg-gradient-to-br from-[#5B8CFF] via-[#4374e8] to-[#3b66d1] text-xl rounded-2xl hover:scale-[1.02] active:scale-[0.98] shadow-[0_0_20px_rgba(91,140,255,0.3)] hover:shadow-[0_0_50px_rgba(91,140,255,0.6)] border border-white/10 hover:border-white/20 ring-1 ring-white/10"
                                 >
@@ -233,11 +237,11 @@ const App: React.FC = () => {
                 {/* Results Feed */}
                 {isForged && resolvedConfig && (
                     <div id="results-feed" className="space-y-12 pt-4">
-                        
+
                         {/* Match Banner - Celebratory Style */}
                         <div className="animate-fade-in-up" style={{ animationDelay: '0ms' }}>
                             <div className="text-center py-6 relative">
-                                
+
                                 {/* Match ID */}
                                 <div className="mb-4">
                                     <span className="inline-block bg-[#171A21] px-3 py-1 rounded-full border border-white/5 text-[10px] font-mono text-slate-500 tracking-widest uppercase">
@@ -262,7 +266,7 @@ const App: React.FC = () => {
                                         {epochName(resolvedConfig.startEpoch)} → {epochName(resolvedConfig.endEpoch)}
                                     </span>
                                 </div>
-                                
+
                                 {/* Subline */}
                                 <div className="mt-2 text-sm font-medium text-slate-500 flex items-center justify-center gap-2">
                                     <span>Point Logic: <span className="text-slate-400">{resolvedConfig.pointUsage}</span></span>
@@ -275,36 +279,36 @@ const App: React.FC = () => {
 
                                 {/* Controls: Export & View Toggle */}
                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden lg:flex gap-2">
-                                    <button 
-                                        onClick={handleShareLink} 
-                                        className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors relative" 
+                                    <button
+                                        onClick={handleShareLink}
+                                        className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors relative"
                                         title="Copy Match Link"
                                     >
                                         {linkCopied ? <Check size={20} className="text-emerald-400" /> : <LinkIcon size={20} />}
                                     </button>
-                                     <button 
-                                        onClick={() => setViewMode(prev => prev === 'grid' ? 'compare' : 'grid')} 
-                                        className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors" 
+                                    <button
+                                        onClick={() => setViewMode(prev => prev === 'grid' ? 'compare' : 'grid')}
+                                        className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                                         title="Toggle Comparison View"
                                     >
                                         {viewMode === 'grid' ? <Columns size={20} /> : <LayoutGrid size={20} />}
                                     </button>
-                                     <button onClick={exportData} className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors" title="Export Match JSON">
+                                    <button onClick={exportData} className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors" title="Export Match JSON">
                                         <Download size={20} />
                                     </button>
                                 </div>
-                                
+
                                 {/* Mobile View Toggle (Centered below) */}
                                 <div className="lg:hidden mt-4 flex justify-center gap-4">
-                                     <button 
-                                        onClick={handleShareLink} 
+                                    <button
+                                        onClick={handleShareLink}
                                         className="text-xs font-bold uppercase tracking-widest text-[#5B8CFF] flex items-center gap-2"
                                     >
                                         {linkCopied ? <Check size={16} /> : <LinkIcon size={16} />}
                                         {linkCopied ? "Link Copied" : "Share Link"}
                                     </button>
-                                     <button 
-                                        onClick={() => setViewMode(prev => prev === 'grid' ? 'compare' : 'grid')} 
+                                    <button
+                                        onClick={() => setViewMode(prev => prev === 'grid' ? 'compare' : 'grid')}
                                         className="text-xs font-bold uppercase tracking-widest text-[#5B8CFF] flex items-center gap-2"
                                     >
                                         {viewMode === 'grid' ? <Columns size={16} /> : <LayoutGrid size={16} />}
@@ -317,14 +321,14 @@ const App: React.FC = () => {
                         {/* Civ List with Staggered Entry */}
                         <div className={`grid gap-8 md:gap-10 transition-all duration-500 ${viewMode === 'compare' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
                             {civs.map((civ, idx) => (
-                                <div 
-                                    key={civ.id} 
-                                    className="animate-fade-in-up" 
+                                <div
+                                    key={civ.id}
+                                    className="animate-fade-in-up"
                                     style={{ animationDelay: `${150 + (idx * 150)}ms` }} // 150ms stagger
                                 >
-                                    <CivCard 
-                                        civ={civ} 
-                                        onReroll={() => handleReroll(idx)} 
+                                    <CivCard
+                                        civ={civ}
+                                        onReroll={() => handleReroll(idx)}
                                         index={idx} // Pass index for visual offset
                                         isCompact={viewMode === 'compare'}
                                         isTournament={resolvedConfig.preset === 'Tournament'}
@@ -332,9 +336,9 @@ const App: React.FC = () => {
                                 </div>
                             ))}
                         </div>
-                        
+
                         <div className="text-center pt-12 pb-8">
-                             <button 
+                            <button
                                 onClick={() => { setIsForged(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                                 className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-[#5B8CFF] transition-colors py-4 px-8"
                             >
