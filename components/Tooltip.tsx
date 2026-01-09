@@ -48,10 +48,28 @@ export const Tooltip: React.FC<TooltipProps> = ({
     }, [isVisible]);
 
     const positionStyles: Record<string, React.CSSProperties> = {
-        top: { bottom: `calc(100vh - ${coords.top}px + 8px)`, left: `${coords.left}px`, transform: 'translateX(-50%)' },
-        bottom: { top: `${coords.top + (triggerRef.current?.offsetHeight || 0)}px`, left: `${coords.left}px`, transform: 'translateX(-50%)', marginTop: '8px' },
-        left: { top: `${coords.top + (triggerRef.current?.offsetHeight || 0) / 2}px`, right: `calc(100vw - ${coords.left - (triggerRef.current?.offsetWidth || 0) / 2}px + 8px)`, transform: 'translateY(-50%)' },
-        right: { top: `${coords.top + (triggerRef.current?.offsetHeight || 0) / 2}px`, left: `${coords.left + (triggerRef.current?.offsetWidth || 0) / 2}px`, transform: 'translateY(-50%)', marginLeft: '8px' }
+        top: {
+            bottom: `calc(100vh - ${coords.top}px + 8px)`,
+            left: `${Math.max(120, Math.min(window.innerWidth - 120, coords.left))}px`,
+            transform: 'translateX(-50%)'
+        },
+        bottom: {
+            top: `${coords.top + (triggerRef.current?.offsetHeight || 0)}px`,
+            left: `${Math.max(120, Math.min(window.innerWidth - 120, coords.left))}px`,
+            transform: 'translateX(-50%)',
+            marginTop: '8px'
+        },
+        left: {
+            top: `${coords.top + (triggerRef.current?.offsetHeight || 0) / 2}px`,
+            right: `calc(100vw - ${coords.left - (triggerRef.current?.offsetWidth || 0) / 2}px + 8px)`,
+            transform: 'translateY(-50%)'
+        },
+        right: {
+            top: `${coords.top + (triggerRef.current?.offsetHeight || 0) / 2}px`,
+            left: `${coords.left + (triggerRef.current?.offsetWidth || 0) / 2}px`,
+            transform: 'translateY(-50%)',
+            marginLeft: '8px'
+        }
     };
 
     if (!content) return <>{children}</>;

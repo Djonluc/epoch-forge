@@ -251,7 +251,8 @@ export const generateCivForPlayer = (
                 originalCost: b.baseCost,
                 type: 'boost',
                 category: b.category,
-                inflationApplied: count * heading.bonusCost
+                inflationApplied: count * heading.bonusCost,
+                description: `${b.name} for ${b.category.split('–').pop()?.trim() || b.category}.`
             });
 
             points -= cost;

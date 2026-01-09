@@ -25,9 +25,10 @@ interface Props {
     index: number; // For layout staggering
     isCompact?: boolean;
     isTournament?: boolean;
+    isTopScore?: boolean;
 }
 
-export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = false, isTournament = false }) => {
+export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = false, isTournament = false, isTopScore = false }) => {
     const [expanded, setExpanded] = useState(false);
     const [copied, setCopied] = useState(false);
     const [showReasoning, setShowReasoning] = useState(false);
@@ -109,6 +110,9 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
     const accentClass = getAccentColor(civ.primaryCategory);
     const archetypeEmoji = getArchetypeEmoji(civ.primaryCategory);
 
+    // Legendary Theme Logic
+    const isLegendary = civ.powerScore >= 85;
+
     // Formatting helper
     const getIdentityTag = (cat: string) => {
         const base = cat.split('–')[0].trim();
@@ -147,8 +151,28 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
     return (
         <div
             ref={cardRef}
-            className={`bg-[#171A21] rounded-3xl p-6 md:p-7 w-full relative overflow-hidden transition-all hover:scale-[1.01] hover:shadow-2xl hover:z-10 border-l-4 ${accentClass} ${tiltClass} ${isCompact ? 'flex flex-col h-full' : ''}`}
+            className={`bg-[#171A21] rounded-3xl p-6 md:p-7 w-full relative overflow-hidden transition-all hover:scale-[1.01] hover:shadow-2xl hover:z-10 border-l-4 ${isLegendary ? 'border-amber-500/60 shadow-[0_0_50px_rgba(245,158,11,0.1)]' : accentClass} ${tiltClass} ${isCompact ? 'flex flex-col h-full' : ''}`}
         >
+            {isLegendary && (
+                <>
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-amber-500/15 to-transparent -mr-16 -mt-16 rounded-full blur-2xl pointer-events-none" />
+                    {/* Legendary Embers */}
+                    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                        {[...Array(16)].map((_, i) => (
+                            <div
+                                key={i}
+                                className="absolute bottom-0 w-1 h-1 bg-gradient-to-t from-orange-500 to-amber-300 rounded-full animate-flame-spark"
+                                style={{
+                                    left: `${Math.random() * 100}%`,
+                                    animationDelay: `${Math.random() * 5}s`,
+                                    animationDuration: `${2 + Math.random() * 3}s`,
+                                    opacity: 0.4 + Math.random() * 0.4
+                                }}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
 
             {/* Header */}
             <div className="flex justify-between items-start mb-4">
@@ -174,9 +198,12 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
                     </div>
                 </div>
 
-                <div className={`px-2 py-1 rounded border text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 ${getScoreColor(civ.powerScore)}`}>
-                    <span>Power</span>
-                    <span className="text-sm">{civ.powerScore}</span>
+                <div className="flex items-center gap-3">
+                    <div className={`px-2 py-1 rounded border text-[10px] font-bold uppercase tracking-wide flex items-center gap-1.5 ${getScoreColor(civ.powerScore)} ${isLegendary ? 'border-amber-400/50 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : ''}`}>
+                        {isTopScore && <span className="text-amber-400">👑</span>}
+                        <span>Power</span>
+                        <span className="text-sm">{civ.powerScore}</span>
+                    </div>
                 </div>
             </div>
 
@@ -258,13 +285,27 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
                                                         {civ.synergies.some(s => s.items.includes(item.name)) && (
                                                             <Tooltip
                                                                 content={
-                                                                    <div className="p-1">
-                                                                        <strong className="text-cyan-400">{civ.synergies.find(s => s.items.includes(item.name))?.name}</strong>
-                                                                        <div className="mt-1 opacity-80">{civ.synergies.find(s => s.items.includes(item.name))?.description}</div>
+                                                                    <div className="p-2 min-w-[200px]">
+                                                                        <div className="flex items-center gap-2 mb-1.5">
+                                                                            <Sparkles size={14} className="text-cyan-400" />
+                                                                            <strong className="text-cyan-400 uppercase tracking-wider text-[10px]">Power Combo</strong>
+                                                                        </div>
+                                                                        <div className="text-white font-bold mb-1">{civ.synergies.find(s => s.items.includes(item.name))?.name}</div>
+                                                                        <div className="text-slate-400 text-[11px] leading-relaxed mb-2">
+                                                                            {civ.synergies.find(s => s.items.includes(item.name))?.description}
+                                                                        </div>
+                                                                        <div className="pt-2 border-t border-white/10 flex flex-wrap gap-1">
+                                                                            {civ.synergies.find(s => s.items.includes(item.name))?.items.map(name => (
+                                                                                <span key={name} className={`px-1.5 py-0.5 rounded text-[9px] font-bold ${name === item.name ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30' : 'bg-white/5 text-slate-500 border border-white/5'}`}>
+                                                                                    {name}
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
                                                                     </div>
                                                                 }
                                                             >
-                                                                <span className="mr-2 text-cyan-400 animate-pulse">
+                                                                <span className="mr-2 text-cyan-400 animate-pulse flex items-center gap-1 group/synergy">
+                                                                    <span className="text-[9px] font-black tracking-tighter opacity-0 group-hover/synergy:opacity-100 transition-opacity">COMBO</span>
                                                                     <Sparkles size={12} />
                                                                 </span>
                                                             </Tooltip>

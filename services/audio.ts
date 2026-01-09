@@ -25,9 +25,9 @@ class AudioService {
             audio.preload = 'auto';
             if (key === 'FIRE_CRACKLE') {
                 audio.loop = true;
-                audio.volume = 0.2; // Subtle ambient volume
+                audio.volume = 0.08; // Subtle atmospheric volume
             } else {
-                audio.volume = 0.4; // Impactful volume for the clang
+                audio.volume = 0.16; // Balanced impact volume
             }
             this.sounds.set(key, audio);
         });

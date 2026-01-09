@@ -50,22 +50,17 @@ const App: React.FC = () => {
 
     const epochName = (id: number) => EPOCHS.find(e => e.id === id)?.name || id;
 
-    // Dynamic Header Text
     const getHeaderText = () => {
         if (!isForged) return "Setting up a match...";
-
         const parts = [];
         parts.push(config.isMapRandom ? "Random World" : `${config.mapType} World`);
         parts.push(config.isPresetRandom ? "Random Rules" : config.preset);
-
         const epochText = config.isEndEpochRandom
             ? `${epochName(config.startEpoch)} → ?`
             : `${epochName(config.startEpoch)} → ${epochName(config.endEpoch)}`;
-
         return `${parts.join(" · ")} · ${epochText}`;
     };
 
-    // Load from URL on mount
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const shareCode = params.get('m');
@@ -73,15 +68,12 @@ const App: React.FC = () => {
             const sharedConfig = decodeConfig(shareCode);
             if (sharedConfig) {
                 setConfig(sharedConfig);
-                // Auto-forge if loaded from link
                 handleForge(sharedConfig);
-                // Clean URL so refresh doesn't stick
                 window.history.replaceState({}, '', window.location.pathname);
             }
         }
     }, []);
 
-    // Initial mount and sound check
     useEffect(() => {
         const handleInitialClick = () => {
             audioService.playIntroGrunt();
@@ -98,60 +90,45 @@ const App: React.FC = () => {
         audioService.playIntroGrunt();
         audioService.startFireCrackle();
 
-        // Random unit sounds during forging
         const soundInterval = setInterval(() => {
             if (Math.random() > 0.5) audioService.playRandomUnitSound();
         }, 800);
 
         const finalConfig = cfgOverride ? { ...cfgOverride } : { ...config };
-
-        // 1. Resolve Random Rules using Seeded RNG (Match-level reproducibility)
         const matchRng = new SeededRNG(`match-rules-${finalConfig.seed}`);
 
-        // Resolve Map
         if (finalConfig.isMapRandom && finalConfig.allowedMaps.length > 0) {
             const index = Math.floor(matchRng.next() * finalConfig.allowedMaps.length);
             finalConfig.mapType = finalConfig.allowedMaps[index];
         }
-
-        // Resolve Preset
         if (finalConfig.isPresetRandom && finalConfig.allowedPresets.length > 0) {
             const index = Math.floor(matchRng.next() * finalConfig.allowedPresets.length);
             finalConfig.preset = finalConfig.allowedPresets[index];
         }
-
-        // Resolve Point Usage
         if (finalConfig.isPointUsageRandom && finalConfig.allowedPointUsages.length > 0) {
             const index = Math.floor(matchRng.next() * finalConfig.allowedPointUsages.length);
             finalConfig.pointUsage = finalConfig.allowedPointUsages[index];
         }
-
-        // Resolve End Epoch
         if (finalConfig.isEndEpochRandom) {
             const min = finalConfig.endEpochMin;
             const max = finalConfig.endEpochMax;
-            const range = max - min + 1;
-            const pick = Math.floor(matchRng.next() * range) + min;
+            const pick = Math.floor(matchRng.next() * (max - min + 1)) + min;
             finalConfig.endEpoch = pick;
         }
 
-        // 2. Generate Civs (calculation happens instantly, display is delayed)
         const quota = Math.floor(finalConfig.playerNames.length / 2);
         const civRng = new SeededRNG(finalConfig.seed);
         const indices = finalConfig.playerNames.map((_, i) => i);
-
         for (let i = indices.length - 1; i > 0; i--) {
             const j = Math.floor(civRng.next() * (i + 1));
             [indices[i], indices[j]] = [indices[j], indices[i]];
         }
-
         const forcedIndices = new Set(indices.slice(0, quota));
 
         const generated = finalConfig.playerNames.map((name, idx) =>
             generateCivForPlayer(finalConfig, name, idx, undefined, forcedIndices.has(idx))
         );
 
-        // 3. The "Reveal Rhythm"
         setTimeout(() => {
             setResolvedConfig(finalConfig);
             setCivs(generated);
@@ -159,31 +136,21 @@ const App: React.FC = () => {
             setIsForging(false);
             audioService.stopFireCrackle();
             clearInterval(soundInterval);
-
             setTimeout(() => {
                 document.getElementById('results-feed')?.scrollIntoView({ behavior: 'smooth' });
             }, 100);
-        }, 800); // 800ms "Forging..." delay
+        }, 800);
     };
 
     const handleReroll = (index: number) => {
         if (!resolvedConfig) return;
-        // Strict Tournament Mode Check
         if (resolvedConfig.preset === 'Tournament') return;
-
         const player = civs[index];
-
-        // Safety check: Prevent usage if already used
         if (player.rerollUsed) return;
-
-        // Deterministic sub-seed: MainSeed - PlayerName - Index - REROLL
-        // This ensures if you reload the same seed, the reroll result is identical
         const newSeed = `${resolvedConfig.seed}-${player.playerName}-${index}-REROLL`;
-
         const newCiv = generateCivForPlayer(resolvedConfig, player.playerName, index, newSeed);
-        newCiv.rerollUsed = true; // Mark as used
-        newCiv.reasoning += " (Rerolled)"; // Update reasoning to reflect change
-
+        newCiv.rerollUsed = true;
+        newCiv.reasoning += " (Rerolled)";
         const newCivs = [...civs];
         newCivs[index] = newCiv;
         setCivs(newCivs);
@@ -203,7 +170,7 @@ const App: React.FC = () => {
     const handleShareLink = () => {
         if (!resolvedConfig) return;
         audioService.playInteraction();
-        const encoded = encodeConfig(config); // Share the ORIGINAL config (with the seed)
+        const encoded = encodeConfig(config);
         const url = `${window.location.origin}${window.location.pathname}?m=${encoded}`;
         navigator.clipboard.writeText(url);
         setLinkCopied(true);
@@ -221,37 +188,17 @@ const App: React.FC = () => {
     return (
         <div className="min-h-screen bg-[#0F1117] text-slate-200 pb-20 font-sans">
             <div className="max-w-4xl mx-auto px-4 pt-10 md:pt-16 space-y-12">
-
-                {/* Header */}
                 <div className="text-center mb-10 relative">
                     <div className="relative inline-block">
-                        {/* Premium "Epoch Forge" Logo */}
-                        <button
-                            onClick={resetApp}
-                            className="relative px-8 py-2 block group hover:scale-[1.02] transition-transform"
-                        >
-                            <h1
-                                className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter bg-gradient-to-b from-amber-200 via-orange-400 to-red-600 bg-clip-text text-transparent filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] select-none py-2"
-                                style={{ fontFamily: "'Inter', sans-serif" }}
-                            >
+                        <button onClick={resetApp} className="relative px-8 py-2 block group hover:scale-[1.02] transition-transform">
+                            <h1 className="text-6xl md:text-8xl font-black italic uppercase tracking-tighter bg-gradient-to-b from-amber-200 via-orange-400 to-red-600 bg-clip-text text-transparent filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.6)] select-none py-2">
                                 Epoch Forge
                             </h1>
-                            {/* Intense Heat Glow */}
                             <div className="absolute inset-0 bg-gradient-to-t from-orange-500/40 to-transparent blur-3xl opacity-80 -z-10 group-hover:opacity-100 transition-opacity animate-pulse" />
-
-                            {/* Logo Embers/Sparks */}
                             <div className="absolute inset-0 pointer-events-none overflow-hidden">
                                 {[...Array(20)].map((_, i) => (
-                                    <div
-                                        key={i}
-                                        className="absolute bottom-0 w-1 h-1 bg-gradient-to-t from-orange-400 to-amber-200 rounded-full animate-flame-spark"
-                                        style={{
-                                            left: `${Math.random() * 100}%`,
-                                            animationDelay: `${Math.random() * 4}s`,
-                                            animationDuration: `${1.5 + Math.random() * 2.5}s`,
-                                            opacity: 0.6 + Math.random() * 0.4
-                                        }}
-                                    />
+                                    <div key={i} className="absolute bottom-0 w-1 h-1 bg-gradient-to-t from-orange-400 to-amber-200 rounded-full animate-flame-spark"
+                                        style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 4}s`, animationDuration: `${1.5 + Math.random() * 2.5}s`, opacity: 0.6 + Math.random() * 0.4 }} />
                                 ))}
                             </div>
                         </button>
@@ -259,19 +206,33 @@ const App: React.FC = () => {
                     <div className="flex flex-col items-center gap-1 mt-6">
                         <DjonStNixLogo className="scale-75 md:scale-90 opacity-40 hover:opacity-100 transition-opacity cursor-default" />
                     </div>
-                    <p className={`font-bold text-sm tracking-[0.3em] uppercase transition-colors duration-700 mt-4 ${isForged ? 'text-amber-500' : 'text-slate-600'}`}>
+
+                    {!isForged && (
+                        <div className="animate-fade-in mt-12 mb-8 group relative max-w-4xl mx-auto px-4">
+                            <div className="relative overflow-hidden rounded-[2rem] border-4 border-white/5 shadow-[0_0_80px_rgba(0,0,0,0.8)] group-hover:border-orange-500/30 transition-all duration-700">
+                                <img
+                                    src="hero_banner.png"
+                                    alt="Evolution of Civilization"
+                                    className="w-full h-auto opacity-90 group-hover:opacity-100 transition-all duration-700 scale-[1.01] group-hover:scale-100"
+                                />
+                                {/* Atmospheric Overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-[#0F1117] via-transparent to-transparent opacity-60 pointer-events-none" />
+                                <div className="absolute inset-0 bg-orange-500/5 group-hover:bg-transparent transition-colors duration-700 pointer-events-none" />
+                            </div>
+                        </div>
+                    )}
+
+                    <p className={`font-bold text-sm tracking-[0.3em] uppercase transition-colors duration-700 mt-8 ${isForged ? 'text-amber-500' : 'text-slate-600'}`}>
                         {getHeaderText()}
                     </p>
                 </div>
 
-                {/* Setup Section (Lobby) - De-emphasize when forged */}
                 <div className={`transition-all duration-1000 ${isForged || isForging ? 'opacity-10 blur-[4px] grayscale pointer-events-none' : ''}`}>
                     <SetupScreen config={config} onUpdate={updateConfig} />
                 </div>
 
-                {/* The Forge Button / Status */}
                 {!isForged && (
-                    <div className="flex flex-col items-center justify-center pt-24 pb-12 w-full">
+                    <div className="flex flex-col items-center justify-center pt-12 pb-12 w-full">
                         {isForging ? (
                             <div className="flex flex-col items-center animate-pulse space-y-8">
                                 <div className="relative">
@@ -281,35 +242,19 @@ const App: React.FC = () => {
                                 <span className="text-3xl font-black text-white tracking-[0.4em] uppercase italic">Forging Results...</span>
                             </div>
                         ) : (
-                            <div className="flex flex-col items-center gap-12 w-full">
-                                <button
-                                    onClick={() => handleForge()}
-                                    className="group relative flex items-center justify-center w-full max-w-lg h-56 font-black text-white transition-all duration-700 bg-gradient-to-br from-[#12141C] to-[#0A0B10] rounded-[50px] hover:scale-[1.03] active:scale-[0.97] border-2 border-white/5 hover:border-orange-500/40 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden"
-                                >
-                                    {/* Animated Glowing Background */}
+                            <div className="flex flex-col items-center gap-8 w-full">
+                                <button onClick={() => handleForge()} className="group relative flex items-center justify-center w-full max-w-lg h-56 font-black text-white transition-all duration-700 bg-gradient-to-br from-[#12141C] to-[#0A0B10] rounded-[50px] hover:scale-[1.03] active:scale-[0.97] border-2 border-white/5 hover:border-orange-500/40 shadow-[0_0_80px_rgba(0,0,0,0.8)] overflow-hidden">
                                     <div className="absolute inset-0 bg-gradient-to-br from-orange-600/30 via-transparent to-red-600/30 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-
-                                    {/* Button Embers */}
                                     <div className="absolute inset-0 pointer-events-none overflow-hidden">
                                         {[...Array(15)].map((_, i) => (
-                                            <div
-                                                key={i}
-                                                className="absolute bottom-[-10%] w-1.5 h-1.5 bg-gradient-to-t from-orange-500 to-amber-300 rounded-full animate-flame-spark"
-                                                style={{
-                                                    left: `${Math.random() * 100}%`,
-                                                    animationDelay: `${Math.random() * 5}s`,
-                                                    animationDuration: `${1 + Math.random() * 2}s`,
-                                                    opacity: 0.4 + Math.random() * 0.4
-                                                }}
-                                            />
+                                            <div key={i} className="absolute bottom-[-10%] w-1.5 h-1.5 bg-gradient-to-t from-orange-500 to-amber-300 rounded-full animate-flame-spark"
+                                                style={{ left: `${Math.random() * 100}%`, animationDelay: `${Math.random() * 5}s`, animationDuration: `${1 + Math.random() * 2}s`, opacity: 0.4 + Math.random() * 0.4 }} />
                                         ))}
                                     </div>
-
                                     <div className="relative flex flex-col items-center justify-center pt-4">
                                         <span className="text-base tracking-[0.8em] font-bold text-orange-500/50 mb-3 group-hover:text-orange-400 transition-colors uppercase">Ignite The</span>
                                         <div className="relative">
                                             <span className="text-8xl md:text-9xl tracking-tighter font-black bg-gradient-to-r from-orange-400 via-amber-200 to-orange-400 bg-clip-text text-transparent drop-shadow-[0_8px_8px_rgba(0,0,0,0.8)]">FORGE</span>
-                                            {/* Molten Glow Effect */}
                                             <div className="absolute inset-0 blur-2xl bg-orange-500/10 -z-10 group-hover:bg-orange-500/30 transition-colors" />
                                         </div>
                                     </div>
@@ -320,114 +265,61 @@ const App: React.FC = () => {
                     </div>
                 )}
 
-                {/* Results Feed */}
                 {isForged && resolvedConfig && (
                     <div id="results-feed" className="space-y-12 pt-4">
-
-                        {/* Match Banner - Celebratory Style */}
                         <div className="animate-fade-in-up" style={{ animationDelay: '0ms' }}>
                             <div className="text-center py-6 relative">
-
-                                {/* Match ID */}
                                 <div className="mb-4">
                                     <span className="inline-block bg-[#171A21] px-3 py-1 rounded-full border border-white/5 text-[10px] font-mono text-slate-500 tracking-widest uppercase">
                                         Match Seed: <span className="text-[#5B8CFF] font-bold">{resolvedConfig.seed}</span>
                                     </span>
                                 </div>
-
-                                {/* Main Headline Banner */}
                                 <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-5 text-slate-200 font-bold text-lg md:text-xl tracking-tight">
-                                    <span className="flex items-center gap-2">
-                                        <Globe size={20} className="text-emerald-400" />
-                                        {resolvedConfig.mapType} World
-                                    </span>
+                                    <span className="flex items-center gap-2"><Globe size={20} className="text-emerald-400" />{resolvedConfig.mapType} World</span>
                                     <span className="hidden md:block text-slate-600">·</span>
-                                    <span className="flex items-center gap-2">
-                                        <Scale size={20} className="text-amber-400" />
-                                        {resolvedConfig.preset}
-                                    </span>
+                                    <span className="flex items-center gap-2"><Scale size={20} className="text-amber-400" />{resolvedConfig.preset}</span>
                                     <span className="hidden md:block text-slate-600">·</span>
-                                    <span className="flex items-center gap-2">
-                                        <Hourglass size={20} className="text-rose-400" />
-                                        {epochName(resolvedConfig.startEpoch)} → {epochName(resolvedConfig.endEpoch)}
-                                    </span>
+                                    <span className="flex items-center gap-2"><Hourglass size={20} className="text-rose-400" />{epochName(resolvedConfig.startEpoch)} → {epochName(resolvedConfig.endEpoch)}</span>
                                 </div>
-
-                                {/* Subline */}
                                 <div className="mt-2 text-sm font-medium text-slate-500 flex items-center justify-center gap-2">
                                     <span>Point Logic: <span className="text-slate-400">{resolvedConfig.pointUsage}</span></span>
                                     {resolvedConfig.preset === 'Tournament' && (
-                                        <span className="ml-2 px-2 py-0.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1">
-                                            <Trophy size={10} /> Tournament Lock Active
-                                        </span>
+                                        <span className="ml-2 px-2 py-0.5 rounded bg-rose-500/10 border border-rose-500/20 text-rose-400 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1"><Trophy size={10} /> Tournament Lock Active</span>
                                     )}
                                 </div>
-
-                                {/* Controls: Export & View Toggle */}
                                 <div className="absolute right-0 top-1/2 -translate-y-1/2 hidden lg:flex gap-2">
-                                    <button
-                                        onClick={handleShareLink}
-                                        className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors relative"
-                                        title="Copy Match Link"
-                                    >
+                                    <button onClick={handleShareLink} className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors relative">
                                         {linkCopied ? <Check size={20} className="text-emerald-400" /> : <LinkIcon size={20} />}
                                     </button>
-                                    <button
-                                        onClick={() => setViewMode(prev => prev === 'grid' ? 'compare' : 'grid')}
-                                        className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
-                                        title="Toggle Comparison View"
-                                    >
+                                    <button onClick={() => setViewMode(prev => prev === 'grid' ? 'compare' : 'grid')} className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors">
                                         {viewMode === 'grid' ? <Columns size={20} /> : <LayoutGrid size={20} />}
                                     </button>
-                                    <button onClick={exportData} className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors" title="Export Match JSON">
-                                        <Download size={20} />
-                                    </button>
+                                    <button onClick={exportData} className="p-2 text-slate-600 hover:text-white hover:bg-white/5 rounded-lg transition-colors"><Download size={20} /></button>
                                 </div>
-
-                                {/* Mobile View Toggle (Centered below) */}
                                 <div className="lg:hidden mt-4 flex justify-center gap-4">
-                                    <button
-                                        onClick={handleShareLink}
-                                        className="text-xs font-bold uppercase tracking-widest text-[#5B8CFF] flex items-center gap-2"
-                                    >
-                                        {linkCopied ? <Check size={16} /> : <LinkIcon size={16} />}
-                                        {linkCopied ? "Link Copied" : "Share Link"}
+                                    <button onClick={handleShareLink} className="text-xs font-bold uppercase tracking-widest text-[#5B8CFF] flex items-center gap-2">
+                                        {linkCopied ? <Check size={16} /> : <LinkIcon size={16} />}{linkCopied ? "Link Copied" : "Share Link"}
                                     </button>
-                                    <button
-                                        onClick={() => setViewMode(prev => prev === 'grid' ? 'compare' : 'grid')}
-                                        className="text-xs font-bold uppercase tracking-widest text-[#5B8CFF] flex items-center gap-2"
-                                    >
-                                        {viewMode === 'grid' ? <Columns size={16} /> : <LayoutGrid size={16} />}
-                                        {viewMode === 'grid' ? "Compare View" : "Card View"}
+                                    <button onClick={() => setViewMode(prev => prev === 'grid' ? 'compare' : 'grid')} className="text-xs font-bold uppercase tracking-widest text-[#5B8CFF] flex items-center gap-2">
+                                        {viewMode === 'grid' ? <Columns size={16} /> : <LayoutGrid size={16} />}{viewMode === 'grid' ? "Compare View" : "Card View"}
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Civ List with Staggered Entry */}
                         <div className={`grid gap-8 md:gap-10 transition-all duration-500 ${viewMode === 'compare' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
-                            {civs.map((civ, idx) => (
-                                <div
-                                    key={civ.id}
-                                    className="animate-fade-in-up"
-                                    style={{ animationDelay: `${150 + (idx * 150)}ms` }} // 150ms stagger
-                                >
-                                    <CivCard
-                                        civ={civ}
-                                        onReroll={() => handleReroll(idx)}
-                                        index={idx} // Pass index for visual offset
-                                        isCompact={viewMode === 'compare'}
-                                        isTournament={resolvedConfig.preset === 'Tournament'}
-                                    />
-                                </div>
-                            ))}
+                            {(() => {
+                                const maxPower = civs.length ? Math.max(...civs.map(c => c.powerScore)) : 0;
+                                return civs.map((civ, idx) => (
+                                    <div key={civ.id} className="animate-fade-in-up" style={{ animationDelay: `${150 + (idx * 150)}ms` }}>
+                                        <CivCard civ={civ} onReroll={() => handleReroll(idx)} index={idx} isCompact={viewMode === 'compare'} isTournament={resolvedConfig.preset === 'Tournament'} isTopScore={civ.powerScore === maxPower} />
+                                    </div>
+                                ));
+                            })()}
                         </div>
 
                         <div className="text-center pt-12 pb-8">
-                            <button
-                                onClick={() => { setIsForged(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                                className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-[#5B8CFF] transition-colors py-4 px-8"
-                            >
+                            <button onClick={() => { setIsForged(false); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-[#5B8CFF] transition-colors py-4 px-8">
                                 Start New Match
                             </button>
                         </div>
