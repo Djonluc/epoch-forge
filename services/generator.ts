@@ -67,8 +67,8 @@ export const resolveMatchConfig = (config: AppConfig): ResolvedAppConfig => {
         const normalMaps = pool.filter(m => MAP_TYPES_INFO[m].category !== 'space');
 
         if (spaceMaps.length > 0 && normalMaps.length > 0) {
-            // If we have both, 10% chance for Space, 90% for Normal
-            mapType = rng.next() < 0.1 ? rng.pick(spaceMaps) : rng.pick(normalMaps);
+            // De-prioritize Space/Planet maps: 5% chance for Space, 95% for Normal
+            mapType = rng.next() < 0.05 ? rng.pick(spaceMaps) : rng.pick(normalMaps);
         } else {
             mapType = rng.pick(pool);
         }
