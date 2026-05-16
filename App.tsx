@@ -110,9 +110,15 @@ const App: React.FC = () => {
         console.log(`🔒 Resolved Config:`, resolved);
 
         // 2. Generate Civs using the PRECISE resolved config
-        const generated = resolved.playerNames.map((name, idx) =>
-            generateCivForPlayer(resolved, name, idx, undefined, true)
-        );
+        // Fix 3: Doctrine rotation — track used doctrines to prevent same-doctrine matches
+        const generated: PlayerCiv[] = [];
+        const usedDoctrineIds: string[] = [];
+        for (let idx = 0; idx < resolved.playerNames.length; idx++) {
+            const name = resolved.playerNames[idx];
+            const civ = generateCivForPlayer(resolved, name, idx, undefined, true, usedDoctrineIds);
+            generated.push(civ);
+            if (civ.doctrine) usedDoctrineIds.push(civ.doctrine.id);
+        }
 
         setTimeout(() => {
             setResolvedConfig(resolved); // Store the strict object

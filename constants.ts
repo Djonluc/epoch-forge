@@ -1,5 +1,5 @@
 
-import { Boost, CivPower, Heading, GamePhase, MapType, PresetMode, PointUsageMode, Archetype, SynergyRule, MapInfo, MapSize, Resources, GameSpeed } from './types';
+import { Boost, BoostCategory, CivPower, Heading, GamePhase, MapType, PresetMode, PointUsageMode, Archetype, SynergyRule, MapInfo, MapSize, Resources, GameSpeed, DoctrineTemplate } from './types';
 
 export const EPOCHS = [
     { id: 1, name: "Stone Age" },
@@ -195,6 +195,18 @@ export const DOCTRINES: DoctrineTemplate[] = [
         militaryIdentity: 'Elite',
         mapPreference: ['land', 'mixed', 'space'],
         winCondition: 'Strategic Bombing'
+    },
+    {
+        id: 'mechanized_assault',
+        name: 'Mechanized Assault',
+        description: 'Deploy overwhelming armored force for a decisive mid-game push.',
+        preferredTags: ['Heavy', 'Armor', 'Military', 'Industrial'],
+        forbiddenTags: ['Stealth', 'Magic'],
+        priorityCategories: ['Tanks', 'Siege Weapons & Mobile AA', 'Civ – Economy'],
+        ecoFocus: 'Stable',
+        militaryIdentity: 'Heavy',
+        mapPreference: ['land', 'mixed', 'space'],
+        winCondition: 'Armored Breakthrough'
     }
 ];
 

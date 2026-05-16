@@ -109,6 +109,7 @@ export interface PlayerCiv {
     synergies: SynergyRule[];
     isValid: boolean;
     doctrine?: {
+        id: string;
         name: string;
         winCondition: string;
     };

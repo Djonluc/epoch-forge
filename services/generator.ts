@@ -10,6 +10,8 @@ export class SeededRNG {
             h = Math.imul(h ^ seedStr.charCodeAt(i), 2654435761);
         }
         this.seed = (h ^ h >>> 16) >>> 0;
+        // Fix 7: Warm up RNG — discard first 8 values to reduce seed correlation
+        for (let i = 0; i < 8; i++) this.next();
     }
 
     next(): number {
@@ -143,70 +145,82 @@ const getMatchWeight = (item: Boost | CivPower, config: ResolvedAppConfig): numb
 };
 
 const getDoctrineWeight = (item: Boost | CivPower, doctrine: DoctrineTemplate): number => {
-    let weight = 1.0;
+    // Fix 1: Capped ADDITIVE scoring instead of multiplicative explosion
+    let bonus = 0;
 
-    // 1. Preferred Tags (Massive Boost)
+    // 1. Preferred Tags: additive, capped at +3.0
+    let tagBonus = 0;
     item.meta.strategyTags.forEach(tag => {
-        if (doctrine.preferredTags.includes(tag)) weight *= 2.5;
+        if (doctrine.preferredTags.includes(tag)) tagBonus += 0.8;
     });
+    bonus += Math.min(tagBonus, 3.0);
 
-    // 2. Forbidden Tags (Hard Exclusion)
+    // 2. Forbidden Tags: soft penalty instead of hard zero
     const isForbidden = item.meta.strategyTags.some(tag => doctrine.forbiddenTags.includes(tag));
-    if (isForbidden) return 0;
+    if (isForbidden) bonus -= 2.0;
 
-    // 3. Category Affinity
+    // 3. Category Affinity: additive
     const cat = 'category' in item ? item.category : '';
-    if (doctrine.priorityCategories.includes(cat as any)) weight *= 1.8;
+    if (doctrine.priorityCategories.includes(cat as any)) bonus += 0.6;
 
-    // 4. Doctrine Affinity (Explicit Match)
-    if (item.meta.doctrineAffinity.includes(doctrine.id)) weight *= 2.0;
+    // 4. Doctrine Affinity (Explicit Match): additive
+    if (item.meta.doctrineAffinity.includes(doctrine.id)) bonus += 1.0;
 
-    return weight;
+    // Convert to multiplier with floor — max ~5.6×, min 0.1×
+    return Math.max(0.1, 1.0 + bonus);
 };
 
 const getSynergyWeight = (item: Boost | CivPower, currentItems: GeneratedItem[]): number => {
-    let weight = 1.0;
+    // Fix 2: Dampened synergy with diminishing returns
     const itemTags = item.meta.strategyTags;
     const heldTags = new Set(currentItems.flatMap(i => {
-        // Need to find the original item to get tags
         const ref = i.type === 'power' 
             ? CIV_POWERS.find(p => p.name === i.name) 
             : BOOSTS.find(b => b.name === i.name);
         return ref?.meta.strategyTags || [];
     }));
 
-    // 1. Reinforce existing tags (Synergy)
-    itemTags.forEach(tag => {
-        if (heldTags.has(tag)) weight *= 1.2; // Snowball effect
-    });
+    // 1. Reinforce existing tags with diminishing returns
+    const matchCount = itemTags.filter(tag => heldTags.has(tag)).length;
+    // 1st match = +0.15, 2nd = +0.10, 3rd+ = +0.05 each, capped
+    let bonus = 0;
+    for (let i = 0; i < Math.min(matchCount, 4); i++) {
+        bonus += Math.max(0.05, 0.15 - (i * 0.05));
+    }
 
-    // 2. Anti-Synergy Penalties
+    // 2. Anti-Synergy Penalties: soft penalty
     const hasConflict = item.meta.antiSynergyTags.some(tag => heldTags.has(tag));
-    if (hasConflict) weight *= 0.1;
+    if (hasConflict) bonus -= 0.5;
 
-    return weight;
+    return Math.max(0.15, 1.0 + bonus);
 };
 
-const selectDoctrine = (rng: SeededRNG, config: ResolvedAppConfig, archetype: ConcreteArchetype): DoctrineTemplate => {
+const selectDoctrine = (rng: SeededRNG, config: ResolvedAppConfig, archetype: ConcreteArchetype, excludeDoctrineIds: string[] = []): DoctrineTemplate => {
     const mapInfo = MAP_TYPES_INFO[config.mapType];
     const mapCat = mapInfo.category;
 
-    // Filter doctrines by map category
-    let pool = DOCTRINES.filter(d => d.mapPreference.includes(mapCat));
-    if (pool.length === 0) pool = [...DOCTRINES]; // Fallback
+    // Fix 3: Filter out doctrines already used by other players in this match
+    let pool = DOCTRINES.filter(d => 
+        d.mapPreference.includes(mapCat) && 
+        !excludeDoctrineIds.includes(d.id)
+    );
+    // Fallback: if all map-compatible doctrines are excluded, allow repeats but still filter by map
+    if (pool.length === 0) pool = DOCTRINES.filter(d => d.mapPreference.includes(mapCat));
+    // Ultimate fallback
+    if (pool.length === 0) pool = [...DOCTRINES];
 
-    // Archetype Influence
+    // Archetype Influence — reduced from 5:1 to 3:1 ratio
     const archetypeMap: Record<ConcreteArchetype, string[]> = {
         'Economic': ['economic_boom', 'air_superiority'],
         'Aggressive': ['infantry_rush', 'guerilla_warfare', 'mechanized_assault'],
         'Defensive': ['defensive_turtle', 'siege_attrition'],
         'Naval': ['naval_domination'],
-        'Balanced': ['economic_boom', 'infantry_rush', 'guerilla_warfare']
+        'Balanced': ['economic_boom', 'infantry_rush', 'guerilla_warfare', 'defensive_turtle']
     };
 
     const preferredIds = archetypeMap[archetype] || [];
     const weightedPool = pool.flatMap(d => {
-        const count = preferredIds.includes(d.id) ? 5 : 1;
+        const count = preferredIds.includes(d.id) ? 3 : 1; // Reduced from 5:1 to 3:1
         return Array(count).fill(d);
     });
 
@@ -218,14 +232,15 @@ export const generateCivForPlayer = (
     playerName: string,
     playerIndex: number,
     forceSeed?: string,
-    ensurePower: boolean = false
+    ensurePower: boolean = false,
+    excludeDoctrineIds: string[] = []
 ): PlayerCiv => {
     const seedString = forceSeed || `${config.seed}-${playerName}-${playerIndex}`;
     const rng = new SeededRNG(seedString);
     const archetype = config.playerArchetypes[playerIndex];
 
     // 1. SELECT DOCTRINE (The "Soul" of the Civ)
-    const doctrine = selectDoctrine(rng, config, archetype);
+    const doctrine = selectDoctrine(rng, config, archetype, excludeDoctrineIds);
 
     let points = 100;
     const items: GeneratedItem[] = [];
@@ -295,6 +310,13 @@ export const generateCivForPlayer = (
             w *= getDoctrineWeight(o.item, doctrine);
             w *= getSynergyWeight(o.item, items);
 
+            // Fix 5: Category diversity enforcement — diminishing returns after 3 picks
+            if (o.type === 'boost') {
+                const catCount = categoryCounts[o.item.category] || 0;
+                if (catCount >= 3) w *= 0.5;
+                if (catCount >= 5) w *= 0.25;
+            }
+
             // Preset modifiers
             if (config.preset === 'Historical' && o.type === 'power') w *= 0.5;
             if (config.preset === 'Chaos') w *= (0.5 + rng.next() * 2);
@@ -318,11 +340,18 @@ export const generateCivForPlayer = (
             finalWeights = finalWeights.map(() => 1);
         }
 
-        const selection = rng.pickWeighted(candidatePool, finalWeights);
-        
-        // Determing reasoning trace
-        let trace = `Aligned with ${doctrine.name}`;
-        if (getMatchWeight(selection.item, config) > 1.3) trace = `Map-optimized for ${config.mapType}`;
+        // Fix 4: Exploration randomness — 15% chance to ignore weights entirely
+        const EXPLORATION_RATE = 0.15;
+        let selection;
+        let trace: string;
+        if (rng.next() < EXPLORATION_RATE) {
+            selection = candidatePool[Math.floor(rng.next() * candidatePool.length)];
+            trace = `Exploration pick (strategic diversity)`;
+        } else {
+            selection = rng.pickWeighted(candidatePool, finalWeights);
+            trace = `Aligned with ${doctrine.name}`;
+            if (getMatchWeight(selection.item, config) > 1.3) trace = `Map-optimized for ${config.mapType}`;
+        }
 
         if (selection.type === 'boost') {
             const b = selection.item as Boost;
@@ -408,6 +437,7 @@ export const generateCivForPlayer = (
         })(items),
         isValid: true,
         doctrine: {
+            id: doctrine.id,
             name: doctrine.name,
             winCondition: doctrine.winCondition
         }
