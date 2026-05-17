@@ -6,11 +6,11 @@
 const AUDIO_ASSETS = {
     FORGE_CLANG: 'https://cdn.pixabay.com/audio/2022/01/18/audio_9cac826cfc.mp3',
     FIRE_CRACKLE: 'https://cdn.pixabay.com/audio/2025/07/17/audio_5925f8939b.mp3',
-    EE_GRUNT: 'https://eesoundboard.online/sounds/unsorted/kgrunt3.wav',
-    EE_UNIT_1: 'https://eesoundboard.online/sounds/unit/forgodandcountry.wav',
-    EE_UNIT_2: 'https://eesoundboard.online/sounds/unit/mm.wav',
-    EE_UNIT_3: 'https://eesoundboard.online/sounds/unit/galory.wav',
-    EE_UNIT_4: 'https://eesoundboard.online/sounds/unit/hallelujah.wav',
+    EE_GRUNT: 'https://eesoundboard.online/sounds/en/unsorted/kgrunt3.wav',
+    EE_UNIT_1: 'https://eesoundboard.online/sounds/en/unit/forgodandcountry.wav',
+    EE_UNIT_2: 'https://eesoundboard.online/sounds/en/unit/mm.wav',
+    EE_UNIT_3: 'https://eesoundboard.online/sounds/en/unit/galory.wav',
+    EE_UNIT_4: 'https://eesoundboard.online/sounds/en/unit/hallelujah.wav',
 };
 
 const EE_UNIT_SOUNDS = ['EE_UNIT_1', 'EE_UNIT_2', 'EE_UNIT_3', 'EE_UNIT_4'];
