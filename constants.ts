@@ -223,6 +223,26 @@ export const POINT_MODES_INFO: Record<PointUsageMode, { description: string }> =
     'Loose': { description: 'AI prioritizes flavor, potentially leaving points unspent.' }
 };
 
+export const MAP_SIZES_INFO: Record<MapSize, { description: string }> = {
+    'Tiny': { description: 'Extremely cramped. Fast early engagements. Highly lethal.' },
+    'Small': { description: 'Limited space. Forces early expansion and border friction.' },
+    'Medium': { description: 'Standard strategic layout. Balanced for all playstyles.' },
+    'Large': { description: 'Abundant space. Favors booming and late-game scaling.' },
+    'Huge': { description: 'Massive theater. Extremely difficult to conquer quickly.' }
+};
+
+export const RESOURCES_INFO: Record<Resources, { description: string }> = {
+    'Low': { description: 'Scarcity. Forces aggressive map control and early skirmishes.' },
+    'Standard': { description: 'Balanced economy. Supports both rushing and booming.' },
+    'High': { description: 'Abundance. Massive armies, fast tech, and defensive stalemates.' }
+};
+
+export const GAME_SPEEDS_INFO: Record<GameSpeed, { description: string }> = {
+    'Slow': { description: 'Extended epochs. Emphasizes unit micro and map control.' },
+    'Standard': { description: 'Normal pacing. Balanced strategic windows.' },
+    'Fast': { description: 'Rapid progression. Forgives early mistakes, rewards fast APM.' }
+};
+
 export const MAP_TYPES: MapType[] = Object.keys(MAP_TYPES_INFO) as MapType[];
 export const PRESET_MODES: PresetMode[] = Object.keys(PRESET_MODES_INFO) as PresetMode[];
 export const POINT_MODES: PointUsageMode[] = Object.keys(POINT_MODES_INFO) as PointUsageMode[];

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { AppConfig, PresetMode, PointUsageMode, MapType, Archetype, MapSize, Resources, GameSpeed, RandomizableOption } from '../types';
-import { EPOCHS, DEFAULT_NAMES, MAP_TYPES, PRESET_MODES, POINT_MODES, ARCHETYPES, MAP_TYPES_INFO, PRESET_MODES_INFO, POINT_MODES_INFO, MAP_SIZES, RESOURCES, GAME_SPEEDS } from '../constants';
+import { EPOCHS, DEFAULT_NAMES, MAP_TYPES, PRESET_MODES, POINT_MODES, ARCHETYPES, MAP_TYPES_INFO, PRESET_MODES_INFO, POINT_MODES_INFO, MAP_SIZES, RESOURCES, GAME_SPEEDS, MAP_SIZES_INFO, RESOURCES_INFO, GAME_SPEEDS_INFO } from '../constants';
 import { User, Plus, X, Lock, Dices, ChevronDown, Anchor, Coins, Shield, Swords, Scale, ChevronRight, Activity, ArrowRight, CornerDownRight, Target, Pickaxe, Hourglass } from 'lucide-react';
 import { Tooltip } from './Tooltip';
 import { RadarChart } from './RadarChart';
@@ -91,7 +91,7 @@ const OperationalLogic = ({
         const isActiveState = (val: T) => isRandom ? option.allowed.includes(val) : option.value === val;
 
         return (
-            <div className={`bg-[#12141C] border-2 ${isRandom ? 'border-orange-500/20' : 'border-white/5'} rounded-3xl p-5 flex flex-col items-center group transition-all shadow-xl relative overflow-hidden w-full h-full`}>
+            <div className={`bg-[#12141C] border-2 ${isRandom ? 'border-orange-500/20' : 'border-white/5'} rounded-3xl p-5 flex flex-col items-center group transition-all shadow-xl relative overflow-visible w-full h-full ${expanded ? 'z-50' : 'z-10'}`}>
                 <div className="flex flex-col w-full mb-4 px-1 relative z-10 gap-3">
                     <div className="flex items-center gap-2">
                         <div className={`p-1.5 rounded-xl border-2 shrink-0 ${isRandom ? 'bg-orange-500/10 border-orange-500/30 text-orange-400' : 'bg-[#171A21] border-white/5 text-slate-600'}`}>
@@ -110,19 +110,26 @@ const OperationalLogic = ({
                 </div>
 
                 <button onClick={() => { audioService.playInteraction(); setExpanded(!expanded); }} className={`w-full rounded-xl px-4 py-3 flex items-center justify-between transition-all group shadow-lg mb-1 border-2 ${isRandom ? "bg-[#171A21] border-orange-500/20 text-orange-400" : "bg-[#171A21] border-white/10 text-slate-300 hover:border-[#5B8CFF]/30"}`}>
-                    <div className="flex items-center gap-3 overflow-hidden">
-                        {isRandom && (
-                            <div className="bg-orange-500 text-[#12141C] text-[9px] px-2 py-0.5 rounded font-black shrink-0 flex items-center justify-center min-w-[20px]">
-                                {currentCount}
-                            </div>
+                    <div className="flex flex-col items-start overflow-hidden w-full pr-4">
+                        <div className="flex items-center gap-3 w-full">
+                            {isRandom && (
+                                <div className="bg-orange-500 text-[#12141C] text-[9px] px-2 py-0.5 rounded font-black shrink-0 flex items-center justify-center min-w-[20px]">
+                                    {currentCount}
+                                </div>
+                            )}
+                            <span className="text-[10px] font-bold uppercase tracking-widest font-mono truncate">{currentLabel}</span>
+                        </div>
+                        {!isRandom && infoMap && infoMap[String(option.value)]?.description && (
+                            <span className="text-[9px] text-slate-500 truncate w-full mt-1.5 opacity-80 group-hover:opacity-100 transition-opacity text-left">
+                                {infoMap[String(option.value)].description}
+                            </span>
                         )}
-                        <span className="text-[10px] font-bold uppercase tracking-widest font-mono truncate">{currentLabel}</span>
                     </div>
                     <ChevronDown size={14} className={`shrink-0 transition-all duration-300 ${expanded ? 'rotate-180' : ''} ${isRandom ? 'text-orange-500' : 'text-slate-600'}`} />
                 </button>
 
                 {expanded && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 animate-fade-in bg-[#171A21] p-3 rounded-2xl border border-white/5 w-full max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 animate-fade-in bg-[#171A21] p-3 rounded-2xl border border-white/5 w-full max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 absolute z-50 top-full left-0 mt-2 shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
                         {optionsList.map((opt) => {
                             const info = infoMap?.[String(opt)];
                             const isActive = isActiveState(opt);
@@ -142,13 +149,14 @@ const OperationalLogic = ({
                         })}
                     </div>
                 )}
+                {expanded && <div className="fixed inset-0 z-40" onClick={() => setExpanded(false)} />}
             </div>
         );
     };
 
     return (
         <div className={`flex flex-col items-center transition-all duration-300 ease-in-out w-full ${isExiting ? 'opacity-0 -translate-y-6' : 'opacity-100 translate-y-0'}`}>
-            <h2 className="text-6xl md:text-7xl font-black text-slate-100 italic tracking-tighter mb-4 text-center">Operational Logic</h2>
+            <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-100 italic tracking-tighter mb-4 text-center">Operational Logic</h2>
             <p className="text-slate-500 font-mono tracking-[0.4em] uppercase text-[10px] mb-16 italic opacity-70">Directive 04: Global Constraints and Allocation Laws</p>
 
             {/* PRIMARY TIER — Strategic Cornerstones */}
@@ -166,9 +174,9 @@ const OperationalLogic = ({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
                 <RandomizableSection title="Point Allocation Logic" option={config.pointUsage} optionsList={POINT_MODES} onChange={(opt) => onUpdate({ pointUsage: opt })} infoMap={POINT_MODES_INFO} icon={<Coins size={16} />} />
-                <RandomizableSection title="Map Scale" option={config.mapSize} optionsList={MAP_SIZES} onChange={(opt) => onUpdate({ mapSize: opt })} icon={<Activity size={16} />} />
-                <RandomizableSection title="Resource Density" option={config.resources} optionsList={RESOURCES} onChange={(opt) => onUpdate({ resources: opt })} icon={<Pickaxe size={16} />} />
-                <RandomizableSection title="Game Velocity" option={config.gameSpeed} optionsList={GAME_SPEEDS} onChange={(opt) => onUpdate({ gameSpeed: opt })} icon={<Scale size={16} />} />
+                <RandomizableSection title="Map Scale" option={config.mapSize} optionsList={MAP_SIZES} onChange={(opt) => onUpdate({ mapSize: opt })} infoMap={MAP_SIZES_INFO} icon={<Activity size={16} />} />
+                <RandomizableSection title="Resource Density" option={config.resources} optionsList={RESOURCES} onChange={(opt) => onUpdate({ resources: opt })} infoMap={RESOURCES_INFO} icon={<Pickaxe size={16} />} />
+                <RandomizableSection title="Game Velocity" option={config.gameSpeed} optionsList={GAME_SPEEDS} onChange={(opt) => onUpdate({ gameSpeed: opt })} infoMap={GAME_SPEEDS_INFO} icon={<Scale size={16} />} />
             </div>
 
             {/* STRATEGIC FEEDBACK — Environment Scan */}
@@ -210,6 +218,18 @@ const OperationalLogic = ({
                                     <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Naval</span>
                                     <span className={`text-sm font-black uppercase ${isNaval ? 'text-emerald-400' : 'text-rose-500'}`}>{isNaval ? 'Viable' : 'Ineffective'}</span>
                                 </div>
+                                <div className="bg-[#12141C] p-3 rounded-xl border border-white/5 flex flex-col gap-1">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Economy</span>
+                                    <span className={`text-sm font-black uppercase ${radarData.economy >= 80 ? 'text-emerald-400' : radarData.economy >= 50 ? 'text-amber-400' : 'text-rose-400'}`}>{radarData.economy >= 80 ? 'Greedy' : radarData.economy >= 50 ? 'Stable' : 'Aggressive'}</span>
+                                </div>
+                                <div className="bg-[#12141C] p-3 rounded-xl border border-white/5 flex flex-col gap-1">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Military</span>
+                                    <span className={`text-sm font-black uppercase ${radarData.military >= 80 ? 'text-rose-500' : radarData.military >= 50 ? 'text-amber-400' : 'text-emerald-400'}`}>{radarData.military >= 80 ? 'Overwhelming' : radarData.military >= 50 ? 'Standard' : 'Low'}</span>
+                                </div>
+                                <div className="bg-[#12141C] p-3 rounded-xl border border-white/5 flex flex-col gap-1">
+                                    <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Coherence</span>
+                                    <span className="text-sm font-black text-cyan-400 uppercase">{Math.floor((radarData.economy + radarData.military + radarData.defense + radarData.mobility + radarData.tech + radarData.naval) / 6)}%</span>
+                                </div>
                                 {tagKeys.length > 0 && (
                                     <div className="col-span-2 sm:col-span-3 bg-[#12141C] p-3 rounded-xl border border-white/5 flex flex-col gap-2">
                                         <span className="text-[9px] font-bold uppercase tracking-widest text-slate-600">Strategic Modifiers</span>
@@ -226,18 +246,18 @@ const OperationalLogic = ({
                 );
             })()}
 
-            <div className="flex items-center gap-8 mt-16 font-mono">
+            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 mt-16 font-mono">
                 <button onClick={() => { audioService.playInteraction(); onBack(); }} disabled={isResolving} className={`text-[10px] font-bold text-slate-600 hover:text-orange-500 uppercase tracking-[0.3em] transition-all hover:scale-105 ${isResolving ? 'opacity-0 cursor-not-allowed' : ''}`}>Back to Timeline</button>
                 <button
                     onClick={() => { audioService.playInteraction(); onFinalize(); }}
                     disabled={isResolving}
-                    className={`group px-20 py-6 rounded-[2rem] flex items-center gap-8 transition-all duration-300 shadow-[0_0_50px_rgba(249,115,22,0.3)] border-2 border-white/10 ${isResolving ? 'bg-slate-800 scale-95 cursor-wait opacity-80' : 'bg-orange-600 hover:bg-orange-500 hover:scale-[1.08] active:scale-95'}`}
+                    className={`group px-10 md:px-20 py-4 md:py-6 rounded-[2rem] flex items-center gap-4 md:gap-8 transition-all duration-300 shadow-[0_0_50px_rgba(249,115,22,0.3)] border-2 border-white/10 w-full sm:w-auto justify-center ${isResolving ? 'bg-slate-800 scale-95 cursor-wait opacity-80' : 'bg-orange-600 hover:bg-orange-500 hover:scale-[1.08] active:scale-95'}`}
                 >
-                    <span className="text-sm font-black text-white uppercase tracking-[0.5em] font-mono">{isResolving ? 'Resolving...' : 'Finalize Strategy'}</span>
+                    <span className="text-xs md:text-sm font-black text-white uppercase tracking-[0.3em] md:tracking-[0.5em] font-mono">{isResolving ? 'Resolving...' : 'Finalize Strategy'}</span>
                     {isResolving ? (
                         <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin" />
                     ) : (
-                        <ArrowRight size={28} className="text-white group-hover:translate-x-3 transition-all animate-pulse" />
+                        <ArrowRight size={24} className="text-white group-hover:translate-x-3 transition-all animate-pulse" />
                     )}
                 </button>
             </div>
@@ -416,41 +436,41 @@ export const SetupScreen: React.FC<Props> = ({ config, onUpdate, onComplete, onF
             )}
 
             {currentStage === 'PLAYERS' && (
-                <div className="flex flex-col items-center animate-fade-in-up">
-                    <h2 className="text-6xl md:text-8xl font-black text-slate-100 italic tracking-tighter mb-4 text-center">Protocol Agents</h2>
-                    <p className="text-slate-500 font-mono tracking-[0.4em] uppercase text-[10px] mb-16 italic opacity-70">Directive 01: Establish Identity Parameters</p>
+                <div className="flex flex-col items-center animate-fade-in-up px-2 md:px-0 w-full">
+                    <h2 className="text-4xl sm:text-6xl md:text-8xl font-black text-slate-100 italic tracking-tighter mb-4 text-center">Protocol Agents</h2>
+                    <p className="text-slate-500 font-mono tracking-[0.4em] uppercase text-[9px] md:text-[10px] mb-8 md:mb-16 italic opacity-70 text-center w-full">Directive 01: Establish Identity Parameters</p>
 
-                    <div className="bg-[#171A21] p-12 rounded-[3rem] border-2 border-white/5 shadow-2xl w-full max-w-2xl relative overflow-hidden group">
+                    <div className="bg-[#171A21] p-6 md:p-12 rounded-[2rem] md:rounded-[3rem] border-2 border-white/5 shadow-2xl w-full max-w-2xl relative overflow-hidden group">
                         <div className="absolute top-0 right-0 w-64 h-64 bg-orange-500/5 blur-[100px] rounded-full group-hover:bg-orange-500/10 transition-all" />
-                        <div className="relative z-10 flex flex-col items-center gap-8">
-                            <div className="w-24 h-24 rounded-full bg-white/5 flex items-center justify-center mb-4 ring-4 ring-white/5 group-hover:ring-orange-500/20 transition-all">
-                                <User size={48} className="text-slate-400 group-hover:text-orange-500 transition-all" />
+                        <div className="relative z-10 flex flex-col items-center gap-6 md:gap-8">
+                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-white/5 flex items-center justify-center mb-2 md:mb-4 ring-4 ring-white/5 group-hover:ring-orange-500/20 transition-all">
+                                <User size={40} className="text-slate-400 group-hover:text-orange-500 transition-all md:w-12 md:h-12" />
                             </div>
-                            <div className="flex items-center gap-8">
-                                <button onClick={() => setNumPlayers(config.numPlayers - 1)} className="w-16 h-16 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95">
+                            <div className="flex items-center gap-4 md:gap-8 w-full justify-center">
+                                <button onClick={() => setNumPlayers(config.numPlayers - 1)} className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-slate-400 hover:text-white transition-all active:scale-95 shrink-0">
                                     <span className="text-2xl font-mono">-</span>
                                 </button>
                                 <div className="flex flex-col items-center">
-                                    <span className="text-8xl font-black text-slate-100 tracking-tighter">{config.numPlayers}</span>
-                                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] font-mono mt-2">Operatives</span>
+                                    <span className="text-6xl sm:text-7xl md:text-8xl font-black text-slate-100 tracking-tighter">{config.numPlayers}</span>
+                                    <span className="text-[9px] md:text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] md:tracking-[0.3em] font-mono mt-1 md:mt-2">Operatives</span>
                                 </div>
-                                <button onClick={() => setNumPlayers(config.numPlayers + 1)} className="w-16 h-16 rounded-2xl bg-orange-500/10 hover:bg-orange-500/20 flex items-center justify-center text-orange-500 transition-all active:scale-95 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)]">
-                                    <Plus size={24} />
+                                <button onClick={() => setNumPlayers(config.numPlayers + 1)} className="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-orange-500/10 hover:bg-orange-500/20 flex items-center justify-center text-orange-500 transition-all active:scale-95 hover:shadow-[0_0_20px_rgba(249,115,22,0.2)] shrink-0">
+                                    <Plus size={20} className="md:w-6 md:h-6" />
                                 </button>
                             </div>
                         </div>
                     </div>
-                    <button onClick={() => nextStage('PLAYERS')} className="mt-16 group px-16 py-5 bg-[#171A21] hover:bg-orange-600 rounded-2xl flex items-center gap-6 transition-all duration-500 shadow-2xl border-2 border-white/10 hover:border-orange-500/50 hover:scale-[1.05]">
-                        <span className="text-sm font-black text-slate-100 uppercase tracking-[0.4em] font-mono">Setup Player Roster</span>
-                        <ChevronRight size={20} className="text-orange-500 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                    <button onClick={() => nextStage('PLAYERS')} className="mt-8 md:mt-16 group px-8 md:px-16 py-4 md:py-5 bg-[#171A21] hover:bg-orange-600 rounded-2xl flex items-center gap-4 md:gap-6 transition-all duration-500 shadow-2xl border-2 border-white/10 hover:border-orange-500/50 hover:scale-[1.05] w-full sm:w-auto justify-center">
+                        <span className="text-xs md:text-sm font-black text-slate-100 uppercase tracking-[0.2em] md:tracking-[0.4em] font-mono">Setup Player Roster</span>
+                        <ChevronRight size={18} className="text-orange-500 group-hover:text-white group-hover:translate-x-2 transition-all md:w-5 md:h-5" />
                     </button>
                 </div>
             )}
 
             {currentStage === 'ROSTER' && (
-                <div className="w-full flex flex-col items-center animate-fade-in-up">
-                    <h2 className="text-6xl md:text-7xl font-black text-slate-100 italic tracking-tighter mb-4 text-center">Roster Assignment</h2>
-                    <p className="text-slate-500 font-mono tracking-[0.4em] uppercase text-[10px] mb-8 italic opacity-70">Directive 02: Designate Call Signs & Doctrine Focus</p>
+                <div className="w-full flex flex-col items-center animate-fade-in-up px-2 md:px-0">
+                    <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-100 italic tracking-tighter mb-4 text-center">Roster Assignment</h2>
+                    <p className="text-slate-500 font-mono tracking-[0.4em] uppercase text-[9px] md:text-[10px] mb-8 italic opacity-70 text-center w-full">Directive 02: Designate Call Signs & Doctrine Focus</p>
 
                     {/* Quick Add/Remove controls also here */}
                     <div className="flex items-center gap-4 mb-10 bg-white/5 p-2 rounded-2xl border border-white/5">
@@ -515,20 +535,20 @@ export const SetupScreen: React.FC<Props> = ({ config, onUpdate, onComplete, onF
                             );
                         })}
                     </div>
-                    <div className="flex items-center gap-8 mt-12 font-mono">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 mt-12 font-mono w-full sm:w-auto">
                         <button onClick={() => setCurrentStage('PLAYERS')} className="text-[10px] font-bold text-slate-600 hover:text-orange-500 uppercase tracking-[0.3em] transition-all hover:scale-105">Back</button>
-                        <button onClick={() => nextStage('ROSTER')} className="group px-16 py-5 bg-[#171A21] hover:bg-orange-600 rounded-2xl flex items-center gap-6 transition-all duration-500 shadow-2xl border-2 border-white/10 hover:border-orange-500/50 hover:scale-[1.05]">
-                            <span className="text-sm font-black text-slate-100 uppercase tracking-[0.4em] font-mono">Confirm Manifest</span>
-                            <ChevronRight size={20} className="text-orange-500 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                        <button onClick={() => nextStage('ROSTER')} className="group px-10 md:px-16 py-4 md:py-5 bg-[#171A21] hover:bg-orange-600 rounded-2xl flex items-center justify-center gap-4 md:gap-6 transition-all duration-500 shadow-2xl border-2 border-white/10 hover:border-orange-500/50 hover:scale-[1.05] w-full sm:w-auto">
+                            <span className="text-xs md:text-sm font-black text-slate-100 uppercase tracking-[0.2em] md:tracking-[0.4em] font-mono">Confirm Manifest</span>
+                            <ChevronRight size={20} className="text-orange-500 group-hover:text-white group-hover:translate-x-2 transition-all md:w-5 md:h-5" />
                         </button>
                     </div>
                 </div>
             )}
 
             {currentStage === 'TIMELINE' && (
-                <div className="flex flex-col items-center animate-fade-in-up">
-                    <h2 className="text-6xl md:text-7xl font-black text-slate-100 italic tracking-tighter mb-4 text-center">Temporal Bounds</h2>
-                    <p className="text-slate-500 font-mono tracking-[0.4em] uppercase text-[10px] mb-16 italic opacity-70">Directive 03: Epoch Constraints</p>
+                <div className="flex flex-col items-center animate-fade-in-up px-2 md:px-0 w-full">
+                    <h2 className="text-4xl sm:text-5xl md:text-7xl font-black text-slate-100 italic tracking-tighter mb-4 text-center">Temporal Bounds</h2>
+                    <p className="text-slate-500 font-mono tracking-[0.4em] uppercase text-[9px] md:text-[10px] mb-8 md:mb-16 italic opacity-70 text-center w-full">Directive 03: Epoch Constraints</p>
                     <div className="flex flex-wrap justify-center gap-8 w-full max-w-5xl">
                         <div className="relative group">
                             <div className="absolute inset-0 bg-orange-500/5 blur-2xl rounded-full group-hover:bg-orange-500/10 transition-all opacity-0 group-hover:opacity-100" />
@@ -539,7 +559,7 @@ export const SetupScreen: React.FC<Props> = ({ config, onUpdate, onComplete, onF
                                     options={EPOCHS}
                                     onChange={(val) => setStartEpoch(val)}
                                     label="Selection"
-                                    prefix="A1"
+                                    prefix="START"
                                 />
                                 <div className="mt-8 flex items-center gap-3 text-slate-600 px-6 py-2 rounded-full border border-white/5 bg-white/5 opacity-50 font-mono text-[10px] uppercase tracking-wider"><Lock size={12} /> Fixed Anchor</div>
                             </div>
@@ -557,7 +577,7 @@ export const SetupScreen: React.FC<Props> = ({ config, onUpdate, onComplete, onF
                                         options={EPOCHS.filter(e => e.id >= config.startEpoch)}
                                         onChange={(val) => setEndEpoch(val)}
                                         label="Selection"
-                                        prefix="Z9"
+                                        prefix="END"
                                     />
                                 ) : (
                                     <div className="flex flex-col gap-3 w-full">
@@ -583,11 +603,11 @@ export const SetupScreen: React.FC<Props> = ({ config, onUpdate, onComplete, onF
                             </div>
                         </div>
                     </div>
-                    <div className="flex items-center gap-8 mt-8 font-mono">
+                    <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 mt-8 font-mono w-full sm:w-auto">
                         <button onClick={() => setCurrentStage('ROSTER')} className="text-[10px] font-bold text-slate-600 hover:text-orange-500 uppercase tracking-[0.3em] transition-all hover:scale-105">Back to Roster</button>
-                        <button onClick={() => nextStage('TIMELINE')} className="group px-16 py-5 bg-[#171A21] hover:bg-orange-600 rounded-2xl flex items-center gap-6 transition-all duration-500 shadow-2xl border-2 border-white/10 hover:border-orange-500/50 hover:scale-[1.05]">
-                            <span className="text-sm font-black text-slate-100 uppercase tracking-[0.4em] font-mono">Lock Timeline</span>
-                            <ChevronRight size={20} className="text-orange-500 group-hover:text-white group-hover:translate-x-2 transition-all" />
+                        <button onClick={() => nextStage('TIMELINE')} className="group px-10 md:px-16 py-4 md:py-5 bg-[#171A21] hover:bg-orange-600 rounded-2xl flex items-center justify-center gap-4 md:gap-6 transition-all duration-500 shadow-2xl border-2 border-white/10 hover:border-orange-500/50 hover:scale-[1.05] w-full sm:w-auto">
+                            <span className="text-xs md:text-sm font-black text-slate-100 uppercase tracking-[0.2em] md:tracking-[0.4em] font-mono">Lock Timeline</span>
+                            <ChevronRight size={20} className="text-orange-500 group-hover:text-white group-hover:translate-x-2 transition-all md:w-5 md:h-5" />
                         </button>
                     </div>
                 </div>
