@@ -130,6 +130,8 @@ export type MapType =
     | "Large Islands"
     | "Small Islands"
     | "Tournament Islands"
+    | "Neo Continental"
+    | "Neo Islands"
     | "Planets – Earth"
     | "Planets – Large"
     | "Planets – Small"

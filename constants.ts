@@ -68,10 +68,24 @@ export const MAP_TYPES_INFO: Record<MapType, MapInfo & { strategic: MapStrategic
         }
     },
     'Tournament Islands': {
-        id: 'Tournament Islands', label: 'Tournament Islands', description: 'Balanced islands for competitive play.', category: 'water', navalSupport: true,
+        id: 'Tournament Islands', label: 'Tournament Islands', description: 'Mirrored islands for fair competitive play.', category: 'mixed', navalSupport: true,
         strategic: {
-            categoryWeights: { "Ships": 2.0, "Infantry – Ranged": 1.2 },
-            tagWeights: { "Naval": 1.8, "Tactical": 1.4 }
+            categoryWeights: { "Ships": 1.6, "Aircraft": 1.3 },
+            tagWeights: { "Naval": 1.5, "Expansion": 1.4 }
+        }
+    },
+    'Neo Continental': {
+        id: 'Neo Continental', label: 'Neo Continental', description: 'Updated Continental for competitive balance.', category: 'land', navalSupport: false,
+        strategic: {
+            categoryWeights: { "Infantry – Ranged": 1.2, "Infantry – Sword / Spear": 1.2, "Tanks": 1.2, "Ships": 0 },
+            tagWeights: { "Land": 1.5, "Naval": 0, "Expansion": 1.2 }
+        }
+    },
+    'Neo Islands': {
+        id: 'Neo Islands', label: 'Neo Islands', description: 'Updated Islands map for competitive balance.', category: 'mixed', navalSupport: true,
+        strategic: {
+            categoryWeights: { "Ships": 1.7, "Aircraft": 1.3 },
+            tagWeights: { "Naval": 1.6, "Expansion": 1.4 }
         }
     },
     'Planets – Earth': {

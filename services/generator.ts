@@ -321,6 +321,9 @@ export const generateCivForPlayer = (
             if (config.preset === 'Historical' && o.type === 'power') w *= 0.5;
             if (config.preset === 'Chaos') w *= (0.5 + rng.next() * 2);
 
+            // Increase power chance significantly (as requested)
+            if (o.type === 'power') w *= 2.0;
+
             return w;
         });
 
