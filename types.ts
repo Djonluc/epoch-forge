@@ -136,11 +136,15 @@ export type MapType =
     | "Tournament Islands"
     | "Neo Continental"
     | "Neo Islands"
+    | "X Continental"
+    | "Z Continental"
+    | "Oasis"
+    | "Dry Terrain"
+    | "Swamp"
     | "Planets – Earth"
     | "Planets – Large"
     | "Planets – Small"
     | "Planets – Mars"
-    | "Planets – Satellite"
     | "Planets – Satellite";
 
 export interface MapInfo {

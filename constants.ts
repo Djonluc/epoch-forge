@@ -22,6 +22,19 @@ export const EPOCHS = [
 export interface MapStrategicWeights {
     categoryWeights: Partial<Record<BoostCategory, number>>;
     tagWeights: Record<string, number>;
+
+    // Strategic ecosystem descriptors
+    economyPressure: 'Low' | 'Standard' | 'High' | 'Extreme';
+    rushPotential: 'None' | 'Low' | 'Medium' | 'High' | 'Extreme';
+    chokepointDensity: 'None' | 'Low' | 'Medium' | 'High';
+    navalViability: 'None' | 'Low' | 'Medium' | 'High' | 'Dominant';
+    airViability: 'Low' | 'Medium' | 'High';
+    defensiveViability: 'Low' | 'Medium' | 'High' | 'Extreme';
+    lateGameScaling: 'Weak' | 'Standard' | 'Strong' | 'Critical';
+    mapControlImportance: 'Low' | 'Medium' | 'High' | 'Critical';
+    strategicPacing: 'Blitz' | 'Fast' | 'Standard' | 'Slow' | 'Siege';
+    expansionTiming: 'Immediate' | 'Early' | 'Standard' | 'Late' | 'Difficult';
+    combatFlow: string;
 }
 
 export const MAP_TYPES_INFO: Record<MapType, MapInfo & { strategic: MapStrategicWeights }> = {
@@ -29,98 +42,215 @@ export const MAP_TYPES_INFO: Record<MapType, MapInfo & { strategic: MapStrategic
         id: 'Continental', label: 'Continental', description: 'Large landmasses separated by oceans.', category: 'land', navalSupport: false,
         strategic: {
             categoryWeights: { "Infantry – Ranged": 1.2, "Infantry – Sword / Spear": 1.2, "Tanks": 1.2, "Ships": 0 },
-            tagWeights: { "Land": 1.5, "Naval": 0, "Expansion": 1.2 }
+            tagWeights: { "Land": 1.5, "Naval": 0, "Expansion": 1.2 },
+            economyPressure: 'Standard', rushPotential: 'Medium', chokepointDensity: 'Low',
+            navalViability: 'None', airViability: 'Medium', defensiveViability: 'Medium',
+            lateGameScaling: 'Standard', mapControlImportance: 'Medium', strategicPacing: 'Standard',
+            expansionTiming: 'Standard', combatFlow: 'Broad frontline clashes with flanking potential'
         }
     },
     'Mediterranean': {
         id: 'Mediterranean', label: 'Mediterranean', description: 'Inland sea surrounded by land.', category: 'mixed', navalSupport: true,
         strategic: {
             categoryWeights: { "Ships": 1.5, "Infantry – Ranged": 1.1 },
-            tagWeights: { "Naval": 1.4, "Amphibious": 1.5 }
+            tagWeights: { "Naval": 1.4, "Amphibious": 1.5 },
+            economyPressure: 'Standard', rushPotential: 'Medium', chokepointDensity: 'Medium',
+            navalViability: 'High', airViability: 'Medium', defensiveViability: 'Medium',
+            lateGameScaling: 'Standard', mapControlImportance: 'High', strategicPacing: 'Standard',
+            expansionTiming: 'Standard', combatFlow: 'Mixed land-sea engagements with amphibious raids'
         }
     },
     'Highlands': {
-        id: 'Highlands', label: 'Highlands', description: 'Mountainous terrain with chokepoints.', category: 'land', navalSupport: false,
+        id: 'Highlands', label: 'Highlands', description: 'Mountainous terrain with chokepoints. Defensive terrain and elevation warfare.', category: 'land', navalSupport: false,
         strategic: {
-            categoryWeights: { "Civ – Buildings, Walls & Towers": 1.4, "Siege Weapons & Mobile AA": 1.3 },
-            tagWeights: { "Defensive": 1.4, "Chokepoint": 1.5 }
+            categoryWeights: { "Civ – Buildings, Walls & Towers": 1.4, "Siege Weapons & Mobile AA": 1.3, "Infantry – Ranged": 1.2 },
+            tagWeights: { "Defensive": 1.4, "Chokepoint": 1.5, "Siege": 1.3, "Range": 1.2 },
+            economyPressure: 'High', rushPotential: 'Low', chokepointDensity: 'High',
+            navalViability: 'None', airViability: 'High', defensiveViability: 'Extreme',
+            lateGameScaling: 'Strong', mapControlImportance: 'High', strategicPacing: 'Slow',
+            expansionTiming: 'Late', combatFlow: 'Artillery-dominated positional warfare through narrow passes'
         }
     },
     'Plains': {
-        id: 'Plains', label: 'Plains', description: 'Open flatlands ideal for cavalry.', category: 'land', navalSupport: false,
+        id: 'Plains', label: 'Plains', description: 'Open flatlands ideal for cavalry. Fast open aggressive expansion warfare.', category: 'land', navalSupport: false,
         strategic: {
-            categoryWeights: { "Cavalry – Ranged": 1.4, "Cavalry – Melee": 1.4 },
-            tagWeights: { "Mobility": 1.5, "Open": 1.4 }
+            categoryWeights: { "Cavalry – Ranged": 1.4, "Cavalry – Melee": 1.4, "Infantry – Ranged": 1.1, "Tanks": 1.3 },
+            tagWeights: { "Mobility": 1.5, "Open": 1.4, "Rush": 1.3, "Fast": 1.2 },
+            economyPressure: 'Low', rushPotential: 'Extreme', chokepointDensity: 'None',
+            navalViability: 'None', airViability: 'Medium', defensiveViability: 'Low',
+            lateGameScaling: 'Weak', mapControlImportance: 'Medium', strategicPacing: 'Blitz',
+            expansionTiming: 'Immediate', combatFlow: 'Large-scale mobile battles with rapid flanking and cavalry charges'
         }
     },
     'Large Islands': {
-        id: 'Large Islands', label: 'Large Islands', description: 'Multiple large islands.', category: 'mixed', navalSupport: true,
+        id: 'Large Islands', label: 'Large Islands', description: 'Multiple large islands. True naval dominance gameplay.', category: 'mixed', navalSupport: true,
         strategic: {
-            categoryWeights: { "Ships": 1.8, "Aircraft": 1.3 },
-            tagWeights: { "Naval": 1.6, "Expansion": 1.4 }
+            categoryWeights: { "Ships": 1.8, "Aircraft": 1.3, "Civ – Economy": 1.2 },
+            tagWeights: { "Naval": 1.6, "Expansion": 1.4, "Amphibious": 1.3 },
+            economyPressure: 'Standard', rushPotential: 'Low', chokepointDensity: 'Low',
+            navalViability: 'Dominant', airViability: 'High', defensiveViability: 'High',
+            lateGameScaling: 'Strong', mapControlImportance: 'Critical', strategicPacing: 'Slow',
+            expansionTiming: 'Standard', combatFlow: 'Naval bombardment, transport invasions, and shoreline defense'
         }
     },
     'Small Islands': {
         id: 'Small Islands', label: 'Small Islands', description: 'Archipelago of small islands.', category: 'water', navalSupport: true,
         strategic: {
             categoryWeights: { "Ships": 2.5, "Civ – Economy": 1.2 },
-            tagWeights: { "Naval": 2.0, "Resourceful": 1.3 }
+            tagWeights: { "Naval": 2.0, "Resourceful": 1.3 },
+            economyPressure: 'High', rushPotential: 'None', chokepointDensity: 'None',
+            navalViability: 'Dominant', airViability: 'High', defensiveViability: 'Medium',
+            lateGameScaling: 'Strong', mapControlImportance: 'Critical', strategicPacing: 'Slow',
+            expansionTiming: 'Standard', combatFlow: 'Naval fleet supremacy with island-hopping assaults'
         }
     },
     'Tournament Islands': {
         id: 'Tournament Islands', label: 'Tournament Islands', description: 'Mirrored islands for fair competitive play.', category: 'mixed', navalSupport: true,
         strategic: {
             categoryWeights: { "Ships": 1.6, "Aircraft": 1.3 },
-            tagWeights: { "Naval": 1.5, "Expansion": 1.4 }
+            tagWeights: { "Naval": 1.5, "Expansion": 1.4 },
+            economyPressure: 'Standard', rushPotential: 'Medium', chokepointDensity: 'Low',
+            navalViability: 'High', airViability: 'High', defensiveViability: 'Medium',
+            lateGameScaling: 'Standard', mapControlImportance: 'High', strategicPacing: 'Standard',
+            expansionTiming: 'Standard', combatFlow: 'Balanced competitive engagements with mirrored naval pressure'
         }
     },
     'Neo Continental': {
-        id: 'Neo Continental', label: 'Neo Continental', description: 'Updated Continental for competitive balance.', category: 'land', navalSupport: false,
+        id: 'Neo Continental', label: 'Neo Continental', description: 'Competitive optimized continental. Cleaner terrain, balanced spawns, reduced RNG.', category: 'land', navalSupport: false,
         strategic: {
             categoryWeights: { "Infantry – Ranged": 1.2, "Infantry – Sword / Spear": 1.2, "Tanks": 1.2, "Ships": 0 },
-            tagWeights: { "Land": 1.5, "Naval": 0, "Expansion": 1.2 }
+            tagWeights: { "Land": 1.5, "Naval": 0, "Expansion": 1.2 },
+            economyPressure: 'Standard', rushPotential: 'High', chokepointDensity: 'Low',
+            navalViability: 'None', airViability: 'Medium', defensiveViability: 'Medium',
+            lateGameScaling: 'Standard', mapControlImportance: 'Medium', strategicPacing: 'Fast',
+            expansionTiming: 'Early', combatFlow: 'Clean competitive engagements with optimized movement lanes'
         }
     },
     'Neo Islands': {
-        id: 'Neo Islands', label: 'Neo Islands', description: 'Updated Islands map for competitive balance.', category: 'mixed', navalSupport: true,
+        id: 'Neo Islands', label: 'Neo Islands', description: 'Competitive optimized islands. Balanced naval with improved pathfinding.', category: 'mixed', navalSupport: true,
         strategic: {
             categoryWeights: { "Ships": 1.7, "Aircraft": 1.3 },
-            tagWeights: { "Naval": 1.6, "Expansion": 1.4 }
+            tagWeights: { "Naval": 1.6, "Expansion": 1.4 },
+            economyPressure: 'Standard', rushPotential: 'Medium', chokepointDensity: 'Low',
+            navalViability: 'High', airViability: 'High', defensiveViability: 'Medium',
+            lateGameScaling: 'Standard', mapControlImportance: 'High', strategicPacing: 'Fast',
+            expansionTiming: 'Early', combatFlow: 'Optimized naval warfare with cleaner island transitions'
         }
     },
+
+    // ========== NEW MAP ARCHETYPES ==========
+
+    'X Continental': {
+        id: 'X Continental', label: 'X Continental', description: 'Cross-map aggressive multi-directional warfare. Diagonal attack lanes with contested center.', category: 'land', navalSupport: false,
+        strategic: {
+            categoryWeights: { "Cavalry – Ranged": 1.4, "Cavalry – Melee": 1.3, "Infantry – Ranged": 1.2, "Tanks": 1.2, "Ships": 0 },
+            tagWeights: { "Mobility": 1.5, "Rush": 1.3, "Raiding": 1.4, "Fast": 1.3, "Land": 1.3, "Naval": 0, "Attack": 1.2 },
+            economyPressure: 'Standard', rushPotential: 'High', chokepointDensity: 'Low',
+            navalViability: 'None', airViability: 'Medium', defensiveViability: 'Low',
+            lateGameScaling: 'Weak', mapControlImportance: 'Critical', strategicPacing: 'Fast',
+            expansionTiming: 'Early', combatFlow: 'Multi-directional flanking across diagonal lanes with contested center control'
+        }
+    },
+    'Z Continental': {
+        id: 'Z Continental', label: 'Z Continental', description: 'Chokepoint-driven staged warfare. Zig-zag progression with layered defensive fronts.', category: 'land', navalSupport: false,
+        strategic: {
+            categoryWeights: { "Civ – Buildings, Walls & Towers": 1.5, "Siege Weapons & Mobile AA": 1.5, "Infantry – Ranged": 1.3, "Tanks": 1.2, "Ships": 0 },
+            tagWeights: { "Defensive": 1.5, "Siege": 1.5, "Chokepoint": 1.6, "Range": 1.4, "Attrition": 1.3, "Land": 1.3, "Naval": 0, "Mobility": 0.7 },
+            economyPressure: 'Standard', rushPotential: 'Low', chokepointDensity: 'High',
+            navalViability: 'None', airViability: 'High', defensiveViability: 'Extreme',
+            lateGameScaling: 'Critical', mapControlImportance: 'High', strategicPacing: 'Siege',
+            expansionTiming: 'Late', combatFlow: 'Staged territorial progression through layered chokepoints and fortified fronts'
+        }
+    },
+    'Oasis': {
+        id: 'Oasis', label: 'Oasis', description: 'Center-control resource warfare. Scarce outer terrain with fertile, resource-rich center.', category: 'land', navalSupport: false,
+        strategic: {
+            categoryWeights: { "Civ – Economy": 1.4, "Infantry – Ranged": 1.2, "Infantry – Sword / Spear": 1.2, "Civ – Buildings, Walls & Towers": 1.2, "Ships": 0 },
+            tagWeights: { "Expansion": 1.5, "Boom": 1.3, "Defensive": 1.2, "Attrition": 1.3, "Land": 1.3, "Naval": 0, "Turtle": 1.2 },
+            economyPressure: 'High', rushPotential: 'Medium', chokepointDensity: 'Medium',
+            navalViability: 'None', airViability: 'Medium', defensiveViability: 'High',
+            lateGameScaling: 'Strong', mapControlImportance: 'Critical', strategicPacing: 'Standard',
+            expansionTiming: 'Standard', combatFlow: 'Constant center-map tension with territorial attrition and resource denial'
+        }
+    },
+    'Dry Terrain': {
+        id: 'Dry Terrain', label: 'Dry Terrain', description: 'Harsh resource-pressure survival. Sparse vegetation, scarce resources, expansion necessity.', category: 'land', navalSupport: false,
+        strategic: {
+            categoryWeights: { "Civ – Economy": 1.6, "Citizens & Fishing Boats": 1.3, "Infantry – Sword / Spear": 1.1, "Ships": 0 },
+            tagWeights: { "Boom": 1.5, "Expansion": 1.5, "Cheap": 1.4, "Attrition": 1.3, "Land": 1.3, "Naval": 0, "Rush": 0.6 },
+            economyPressure: 'Extreme', rushPotential: 'Low', chokepointDensity: 'Low',
+            navalViability: 'None', airViability: 'Low', defensiveViability: 'Medium',
+            lateGameScaling: 'Critical', mapControlImportance: 'High', strategicPacing: 'Slow',
+            expansionTiming: 'Immediate', combatFlow: 'Economy-driven warfare where every military loss is costly and resource efficiency wins'
+        }
+    },
+    'Swamp': {
+        id: 'Swamp', label: 'Swamp', description: 'Slow terrain ambush warfare. Dense vegetation with concealment and movement penalties.', category: 'mixed', navalSupport: true,
+        strategic: {
+            categoryWeights: { "Infantry – Ranged": 1.4, "Infantry – Sword / Spear": 1.2, "Religion": 1.3, "Ships": 0.8 },
+            tagWeights: { "Stealth": 1.5, "Tactical": 1.4, "Defensive": 1.3, "Mobility": 0.7, "Attrition": 1.3, "Naval": 0.5 },
+            economyPressure: 'High', rushPotential: 'Low', chokepointDensity: 'Medium',
+            navalViability: 'Low', airViability: 'Low', defensiveViability: 'High',
+            lateGameScaling: 'Standard', mapControlImportance: 'Medium', strategicPacing: 'Slow',
+            expansionTiming: 'Late', combatFlow: 'Ambush-focused infantry warfare in dense terrain with limited visibility'
+        }
+    },
+
+    // ========== SPACE / PLANETS ==========
+
     'Planets – Earth': {
         id: 'Planets – Earth', label: 'Planets – Earth', description: 'The homeworld.', category: 'space', navalSupport: false, minEpoch: 14,
         strategic: {
             categoryWeights: { "Aircraft": 1.5, "Cyber": 1.4, "Tanks": 1.3, "Ships": 0 },
-            tagWeights: { "Space": 1.5, "Technical": 1.3 }
+            tagWeights: { "Space": 1.5, "Technical": 1.3 },
+            economyPressure: 'Standard', rushPotential: 'Medium', chokepointDensity: 'Low',
+            navalViability: 'None', airViability: 'High', defensiveViability: 'Medium',
+            lateGameScaling: 'Strong', mapControlImportance: 'High', strategicPacing: 'Standard',
+            expansionTiming: 'Standard', combatFlow: 'Advanced multi-domain warfare with orbital logistics'
         }
     },
     'Planets – Large': {
         id: 'Planets – Large', label: 'Planets – Large', description: 'A massive alien world.', category: 'space', navalSupport: false, minEpoch: 14,
         strategic: {
             categoryWeights: { "Aircraft": 1.4, "Tanks": 1.5, "Ships": 0 },
-            tagWeights: { "Space": 1.4, "Industrial": 1.3 }
+            tagWeights: { "Space": 1.4, "Industrial": 1.3 },
+            economyPressure: 'Low', rushPotential: 'Low', chokepointDensity: 'Low',
+            navalViability: 'None', airViability: 'High', defensiveViability: 'Medium',
+            lateGameScaling: 'Critical', mapControlImportance: 'High', strategicPacing: 'Slow',
+            expansionTiming: 'Standard', combatFlow: 'Massive-scale armored advances across alien terrain'
         }
     },
     'Planets – Small': {
         id: 'Planets – Small', label: 'Planets – Small', description: 'A small rocky planetoid.', category: 'space', navalSupport: false, minEpoch: 14,
         strategic: {
             categoryWeights: { "Cyber": 1.5, "Infantry – Ranged": 1.3, "Ships": 0 },
-            tagWeights: { "Space": 1.5, "Fast": 1.3 }
+            tagWeights: { "Space": 1.5, "Fast": 1.3 },
+            economyPressure: 'High', rushPotential: 'High', chokepointDensity: 'Medium',
+            navalViability: 'None', airViability: 'Medium', defensiveViability: 'Medium',
+            lateGameScaling: 'Standard', mapControlImportance: 'High', strategicPacing: 'Fast',
+            expansionTiming: 'Early', combatFlow: 'Fast-paced skirmishes on cramped planetoid terrain'
         }
     },
     'Planets – Mars': {
         id: 'Planets – Mars', label: 'Planets – Mars', description: 'The red planet.', category: 'space', navalSupport: false, minEpoch: 14,
         strategic: {
             categoryWeights: { "Tanks": 1.4, "Siege Weapons & Mobile AA": 1.4, "Ships": 0 },
-            tagWeights: { "Space": 1.4, "Attrition": 1.3 }
+            tagWeights: { "Space": 1.4, "Attrition": 1.3 },
+            economyPressure: 'Extreme', rushPotential: 'Low', chokepointDensity: 'Medium',
+            navalViability: 'None', airViability: 'Medium', defensiveViability: 'High',
+            lateGameScaling: 'Strong', mapControlImportance: 'High', strategicPacing: 'Slow',
+            expansionTiming: 'Late', combatFlow: 'Attritional siege warfare in harsh Martian conditions'
         }
     },
     'Planets – Satellite': {
         id: 'Planets – Satellite', label: 'Planets – Satellite', description: 'Orbital station warfare.', category: 'space', navalSupport: false, minEpoch: 14,
         strategic: {
             categoryWeights: { "Cyber": 1.8, "Aircraft": 1.5, "Ships": 0 },
-            tagWeights: { "Space": 1.8, "Electronic": 1.5 }
+            tagWeights: { "Space": 1.8, "Electronic": 1.5 },
+            economyPressure: 'High', rushPotential: 'Medium', chokepointDensity: 'High',
+            navalViability: 'None', airViability: 'High', defensiveViability: 'High',
+            lateGameScaling: 'Strong', mapControlImportance: 'Critical', strategicPacing: 'Standard',
+            expansionTiming: 'Difficult', combatFlow: 'Cyber-electronic warfare in constrained orbital corridors'
         }
     }
 };

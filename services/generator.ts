@@ -141,6 +141,70 @@ const getMatchWeight = (item: Boost | CivPower, config: ResolvedAppConfig): numb
         if (mapCat === 'land' && item.meta.terrainAffinity.every(t => t === 'water')) return 0; // Hard exclusion
     }
 
+    // 4. Strategic Profile — Economy Pressure
+    if (strategic.economyPressure === 'Extreme') {
+        if (item.meta.strategyTags.includes('Boom')) weight *= 1.4;
+        if (item.meta.strategyTags.includes('Cheap')) weight *= 1.3;
+        if (item.meta.strategyTags.includes('Rush')) weight *= 0.6;
+    } else if (strategic.economyPressure === 'High') {
+        if (item.meta.strategyTags.includes('Boom')) weight *= 1.2;
+        if (item.meta.strategyTags.includes('Cheap')) weight *= 1.15;
+    } else if (strategic.economyPressure === 'Low') {
+        if (item.meta.strategyTags.includes('Rush')) weight *= 1.2;
+        if (item.meta.strategyTags.includes('Military')) weight *= 1.1;
+    }
+
+    // 5. Strategic Profile — Chokepoint Density
+    if (strategic.chokepointDensity === 'High') {
+        if (item.meta.strategyTags.includes('Siege')) weight *= 1.5;
+        if (item.meta.strategyTags.includes('Defensive')) weight *= 1.4;
+        if (item.meta.strategyTags.includes('Range')) weight *= 1.3;
+        if (item.meta.strategyTags.includes('Mobility')) weight *= 0.7;
+        if (item.meta.strategyTags.includes('Fast')) weight *= 0.7;
+    } else if (strategic.chokepointDensity === 'None') {
+        if (item.meta.strategyTags.includes('Mobility')) weight *= 1.3;
+        if (item.meta.strategyTags.includes('Fast')) weight *= 1.2;
+    }
+
+    // 6. Strategic Profile — Rush Potential
+    if (strategic.rushPotential === 'Extreme' || strategic.rushPotential === 'High') {
+        if (item.meta.strategyTags.includes('Rush')) weight *= 1.4;
+        if (item.meta.strategyTags.includes('Swarm')) weight *= 1.3;
+        if (item.meta.role === 'Core' && item.tags.includes('Early' as any)) weight *= 1.2;
+    } else if (strategic.rushPotential === 'None' || strategic.rushPotential === 'Low') {
+        if (item.meta.strategyTags.includes('Late')) weight *= 1.2;
+        if (item.meta.strategyTags.includes('Scaling')) weight *= 1.15;
+    }
+
+    // 7. Strategic Profile — Defensive Viability
+    if (strategic.defensiveViability === 'Extreme') {
+        if (item.meta.strategyTags.includes('Turtle')) weight *= 1.3;
+        if (item.meta.strategyTags.includes('Defensive')) weight *= 1.2;
+        if (cat === 'Civ – Buildings, Walls & Towers') weight *= 1.2;
+    } else if (strategic.defensiveViability === 'Low') {
+        if (item.meta.strategyTags.includes('Turtle')) weight *= 0.7;
+        if (item.meta.strategyTags.includes('Defensive')) weight *= 0.8;
+    }
+
+    // 8. Strategic Profile — Late Game Scaling
+    if (strategic.lateGameScaling === 'Critical') {
+        if (item.meta.strategyTags.includes('Scaling')) weight *= 1.3;
+        if (item.meta.strategyTags.includes('Tech')) weight *= 1.2;
+        if (item.meta.role === 'Scaling') weight *= 1.3;
+    } else if (strategic.lateGameScaling === 'Weak') {
+        if (item.meta.strategyTags.includes('Late')) weight *= 0.8;
+        if (item.meta.role === 'Scaling') weight *= 0.7;
+    }
+
+    // 9. Strategic Profile — Pacing influence on game phase items
+    if (strategic.strategicPacing === 'Blitz') {
+        if (item.tags.includes('Early' as any)) weight *= 1.3;
+        if (item.tags.includes('Late' as any) && !item.tags.includes('Early' as any)) weight *= 0.7;
+    } else if (strategic.strategicPacing === 'Siege') {
+        if (item.tags.includes('Late' as any)) weight *= 1.2;
+        if (item.meta.strategyTags.includes('Siege')) weight *= 1.3;
+    }
+
     return weight;
 };
 
@@ -198,6 +262,7 @@ const getSynergyWeight = (item: Boost | CivPower, currentItems: GeneratedItem[])
 const selectDoctrine = (rng: SeededRNG, config: ResolvedAppConfig, archetype: ConcreteArchetype, excludeDoctrineIds: string[] = []): DoctrineTemplate => {
     const mapInfo = MAP_TYPES_INFO[config.mapType];
     const mapCat = mapInfo.category;
+    const profile = mapInfo.strategic;
 
     // Fix 3: Filter out doctrines already used by other players in this match
     let pool = DOCTRINES.filter(d => 
@@ -219,8 +284,32 @@ const selectDoctrine = (rng: SeededRNG, config: ResolvedAppConfig, archetype: Co
     };
 
     const preferredIds = archetypeMap[archetype] || [];
+
+    // Map Profile-Aware Doctrine Weighting (additive on top of archetype)
+    const profileDoctrineIds: string[] = [];
+    if (profile.chokepointDensity === 'High') {
+        profileDoctrineIds.push('defensive_turtle', 'siege_attrition');
+    }
+    if (profile.rushPotential === 'Extreme' || profile.rushPotential === 'High') {
+        profileDoctrineIds.push('infantry_rush', 'guerilla_warfare', 'mechanized_assault');
+    }
+    if (profile.economyPressure === 'Extreme' || profile.economyPressure === 'High') {
+        profileDoctrineIds.push('economic_boom', 'fast_epoch');
+    }
+    if (profile.navalViability === 'Dominant' || profile.navalViability === 'High') {
+        profileDoctrineIds.push('naval_domination');
+    }
+    if (profile.defensiveViability === 'Extreme') {
+        profileDoctrineIds.push('defensive_turtle', 'prophet_warfare');
+    }
+    if (profile.strategicPacing === 'Siege') {
+        profileDoctrineIds.push('siege_attrition');
+    }
+
     const weightedPool = pool.flatMap(d => {
-        const count = preferredIds.includes(d.id) ? 3 : 1; // Reduced from 5:1 to 3:1
+        let count = 1;
+        if (preferredIds.includes(d.id)) count += 2; // Archetype: 3:1 ratio
+        if (profileDoctrineIds.includes(d.id)) count += 1; // Map profile: +1 soft bias
         return Array(count).fill(d);
     });
 
