@@ -348,6 +348,14 @@ export const BOOSTS: Boost[] = [
     { name: "20% Range (Cav Ranged)", baseCost: 5, category: "Cavalry – Ranged", tags: [GamePhase.MID], meta: { strategyTags: ["Military", "Mobility", "Range"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core", unitFocus: ["Cavalry"] } },
     { name: "20% Speed (Cav Ranged)", baseCost: 4, category: "Cavalry – Ranged", tags: [GamePhase.MID], meta: { strategyTags: ["Military", "Mobility", "Fast"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core", unitFocus: ["Cavalry"] } },
 
+    // Cavalry - Melee
+    { name: "20% Armor (Cav Melee)", baseCost: 2, category: "Cavalry – Melee", tags: [GamePhase.MID], meta: { strategyTags: ["Military", "Mobility", "Armor"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Support", unitFocus: ["Cavalry"] } },
+    { name: "20% Attack (Cav Melee)", baseCost: 4, category: "Cavalry – Melee", tags: [GamePhase.MID], meta: { strategyTags: ["Military", "Attack"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core", unitFocus: ["Cavalry"] } },
+    { name: "30% Build Time (Cav Melee)", baseCost: 3, category: "Cavalry – Melee", tags: [GamePhase.MID], meta: { strategyTags: ["Military", "Mobility", "Swarm"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Support", unitFocus: ["Cavalry"] } },
+    { name: "20% Cost Reduction (Cav Melee)", baseCost: 8, category: "Cavalry – Melee", tags: [GamePhase.MID], meta: { strategyTags: ["Military", "Mobility", "Cheap"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core", unitFocus: ["Cavalry"] } },
+    { name: "25% Hit Points (Cav Melee)", baseCost: 4, category: "Cavalry – Melee", tags: [GamePhase.MID], meta: { strategyTags: ["Military", "Mobility", "Durability"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Support", unitFocus: ["Cavalry"] } },
+    { name: "20% Speed (Cav Melee)", baseCost: 4, category: "Cavalry – Melee", tags: [GamePhase.MID], meta: { strategyTags: ["Military", "Mobility", "Fast"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core", unitFocus: ["Cavalry"] } },
+
     // Siege
     { name: "20% Area Effect (Siege)", baseCost: 5, category: "Siege Weapons & Mobile AA", tags: [GamePhase.LATE], meta: { strategyTags: ["Military", "Siege", "Area"], terrainAffinity: ["land", "mixed", "space"], doctrineAffinity: ["siege_attrition"], antiSynergyTags: ["Rush"], role: "Core", unitFocus: ["Siege"] } },
     { name: "20% Armor (Siege)", baseCost: 1, category: "Siege Weapons & Mobile AA", tags: [GamePhase.LATE], meta: { strategyTags: ["Military", "Siege", "Armor"], terrainAffinity: ["land", "mixed", "space"], doctrineAffinity: ["siege_attrition"], antiSynergyTags: [], role: "Support", unitFocus: ["Siege"] } },
@@ -399,6 +407,14 @@ export const CIV_POWERS: CivPower[] = [
     { name: "Priest Tower", cost: 30, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.MID], description: "Radiates a conversion aura that periodically claims nearby units.", meta: { strategyTags: ["Defensive", "Area", "Magic"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: ["Rush"], role: "Core" } },
     { name: "Pathfinding", cost: 25, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY], description: "All units ignore terrain penalties and move 15% faster.", meta: { strategyTags: ["Mobility", "Fast", "Exploration"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare", "infantry_rush"], antiSynergyTags: [], role: "Support" } },
     { name: "SAS Commando", cost: 15, minEpoch: 10, maxEpoch: 15, tags: [GamePhase.LATE], description: "Specialized elite infantry with stealth and sabotage abilities.", meta: { strategyTags: ["Military", "Stealth", "Special Forces"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core", unitFocus: ["Infantry"] } },
+    { name: "Bundeswehr", cost: 5, minEpoch: 10, maxEpoch: 15, tags: [GamePhase.MID, GamePhase.LATE], description: "Citizens instantly turn into Partisans when attacked.", meta: { strategyTags: ["Defensive", "Swarm", "Late"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: ["Rush"], role: "Support" } },
+    { name: "Conquistadors", cost: 5, minEpoch: 3, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID], description: "Mounted units gain +50% Line of Sight (LOS).", meta: { strategyTags: ["Mobility", "Fast", "Exploration"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Support" } },
+    { name: "Exploration", cost: 5, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY], description: "Capitols and Town Centers gain +50% Line of Sight (LOS).", meta: { strategyTags: ["Exploration", "Early", "Defensive"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: [], role: "Support" } },
+    { name: "Crusaders", cost: 15, minEpoch: 4, maxEpoch: 15, tags: [GamePhase.MID], description: "Sword/Spear infantry and Melee cavalry can convert enemy units during battle.", meta: { strategyTags: ["Military", "Magic", "Tactical"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["infantry_rush"], antiSynergyTags: [], role: "Core" } },
+    { name: "Cyber Ninja", cost: 15, minEpoch: 13, maxEpoch: 15, tags: [GamePhase.LATE], description: "Unlocks cloaked cybernetic units capable of disabling enemy structures.", meta: { strategyTags: ["Cyber", "Stealth", "Raiding"], terrainAffinity: ["land", "mixed", "space"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core" } },
+    { name: "Emissaries", cost: 20, minEpoch: 3, maxEpoch: 15, tags: [GamePhase.MID], description: "Priests are cloaked/invisible until they attempt a conversion.", meta: { strategyTags: ["Religion", "Stealth", "Magic"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: [], role: "Support" } },
+    { name: "Camouflage", cost: 25, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID, GamePhase.LATE], description: "Idle units become cloaked/invisible to enemies without detection.", meta: { strategyTags: ["Stealth", "Defensive", "Tactical"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core" } },
+    { name: "Cloaking", cost: 25, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID, GamePhase.LATE], description: "Capitols and Town Centers cloak all friendly units and structures in a wide radius.", meta: { strategyTags: ["Stealth", "Defensive", "Turtle"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: ["Rush"], role: "Core" } },
 ];
 
 export const SYNERGIES: SynergyRule[] = [
@@ -441,5 +457,20 @@ export const SYNERGIES: SynergyRule[] = [
         name: "Resource Monopoly",
         items: ["Advanced Mining", "Slavery"],
         description: "Hyper-efficient extraction that outpaces any conventional economy."
+    },
+    {
+        name: "Ninja Sabotage",
+        items: ["Cyber Ninja", "20% Attack (Cyber)"],
+        description: "Cyber Ninja units gain advanced logic bombs that detonate with double effectiveness."
+    },
+    {
+        name: "Invisible Guerrillas",
+        items: ["Camouflage", "20% Speed (Ranged Inf)"],
+        description: "Invisible ranged squads that strike from cover and retreat before detection."
+    },
+    {
+        name: "Holy Crusade",
+        items: ["Crusaders", "30% Hit Points (Priests)"],
+        description: "Crusading knights whose battlefield conversions sweep through entire tight clusters of enemies."
     }
 ];
