@@ -262,11 +262,19 @@ export const generateCivForPlayer = (
         return boost.baseCost + (count * (heading?.bonusCost || 0));
     };
 
-    // 3. MANDATORY POWER SELECTION (Strategic)
-    if (ensurePower) {
+    // 3. STRATEGIC POWER SELECTION (Super Powers)
+    // Distribution: 10% for 0 | 70% for 1 | 15% for 2 | 5% for 3
+    let targetPowers = 1;
+    const powerRoll = rng.next();
+    if (powerRoll < 0.10) targetPowers = 0;
+    else if (powerRoll < 0.80) targetPowers = 1;
+    else if (powerRoll < 0.95) targetPowers = 2;
+    else targetPowers = 3;
+
+    for (let i = 0; i < targetPowers; i++) {
         const candidates = validPowers.filter(p => {
             const weight = getMatchWeight(p, config) * getDoctrineWeight(p, doctrine);
-            return weight > 0 && p.cost <= points;
+            return weight > 0 && p.cost <= points && !takenItems.has(p.name);
         });
 
         if (candidates.length > 0) {
@@ -277,7 +285,8 @@ export const generateCivForPlayer = (
                 cost: selection.cost,
                 originalCost: selection.cost,
                 type: 'power',
-                description: selection.description
+                description: selection.description,
+                trace: 'Strategic Power Allocation'
             });
             points -= selection.cost;
             takenItems.add(selection.name);
@@ -293,9 +302,8 @@ export const generateCivForPlayer = (
 
         const affordableOptions = [
             ...validBoosts.filter(b => !takenItems.has(b.name) && getBoostCost(b) <= points)
-                .map(b => ({ type: 'boost' as const, item: b, cost: getBoostCost(b) })),
-            ...validPowers.filter(p => !takenItems.has(p.name) && p.cost <= points)
-                .map(p => ({ type: 'power' as const, item: p, cost: p.cost }))
+                .map(b => ({ type: 'boost' as const, item: b, cost: getBoostCost(b) }))
+            // CivPowers are no longer picked in the general loop to enforce the exact probability distribution
         ];
 
         if (affordableOptions.length === 0) break;
@@ -318,11 +326,7 @@ export const generateCivForPlayer = (
             }
 
             // Preset modifiers
-            if (config.preset === 'Historical' && o.type === 'power') w *= 0.5;
             if (config.preset === 'Chaos') w *= (0.5 + rng.next() * 2);
-
-            // Increase power chance significantly (as requested)
-            if (o.type === 'power') w *= 2.0;
 
             return w;
         });
