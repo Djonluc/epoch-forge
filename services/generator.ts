@@ -416,9 +416,30 @@ export const generateCivForPlayer = (
     let reasoning = `Engine prioritized the ${doctrine.name} doctrine for the ${config.mapType} terrain.`;
     reasoning += ` Strategy optimized for ${doctrine.militaryIdentity} military and ${doctrine.ecoFocus} economy.`;
 
+    // Name Generation Logic
+    let civName = "The Forge Alliance";
+    const allTags = items.flatMap(i => getMeta(i)?.strategyTags || []);
+    const tagCounts = allTags.reduce((acc, tag) => {
+        acc[tag] = (acc[tag] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
+    
+    const topTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]).map(e => e[0]);
+    
+    if (topTags.includes('Stealth') || topTags.includes('Raiding')) civName = "The Shadow Syndicate";
+    else if (topTags.includes('Defensive') || topTags.includes('Turtle') || topTags.includes('Armor')) civName = "The Iron Bastion";
+    else if (topTags.includes('Cyber') || topTags.includes('Tech')) civName = "The Neon Directorate";
+    else if (topTags.includes('Religion') || topTags.includes('Magic')) civName = "The Divine Order";
+    else if (topTags.includes('Naval') || topTags.includes('Water')) civName = "The Sapphire Armada";
+    else if (topTags.includes('Space') || topTags.includes('Automation')) civName = "The Astral Vanguard";
+    else if (topTags.includes('Swarm') || topTags.includes('Rush')) civName = "The Crimson Tide";
+    else if (topTags.includes('Boom') || topTags.includes('Wealth')) civName = "The Gilded Empire";
+    else civName = `The ${primaryCat.split('–')[0].trim()} Coalition`;
+
     return {
         id: `civ-${playerIndex}-${Date.now()}`,
         playerName,
+        civName,
         pointsSpent: 100 - points,
         items: items.sort((a, b) => (a.category || '').localeCompare(b.category || '')),
         ratings: {
@@ -442,7 +463,9 @@ export const generateCivForPlayer = (
         doctrine: {
             id: doctrine.id,
             name: doctrine.name,
-            winCondition: doctrine.winCondition
+            winCondition: doctrine.winCondition,
+            description: doctrine.description,
+            ecoFocus: doctrine.ecoFocus
         }
     };
 };

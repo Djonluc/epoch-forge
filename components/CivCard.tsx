@@ -152,15 +152,17 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
                     </div>
                     <div>
                         <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] font-mono">Data Entry:</span>
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-[0.2em] font-mono">Commander: <span className="text-orange-400">{civ.playerName}</span></span>
                             {isTopScore && <Zap size={14} className="text-amber-400 animate-pulse" />}
                         </div>
-                        <h3 className="text-4xl font-black text-slate-100 italic tracking-tighter leading-none mb-2">{civ.playerName}</h3>
+                        <h3 className="text-4xl font-black text-slate-100 italic tracking-tighter leading-none mb-2">{civ.civName}</h3>
                         <div className="flex flex-wrap items-center gap-3 font-mono">
                             {civ.doctrine && (
-                                <span className="text-[10px] font-bold text-amber-500 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 uppercase tracking-widest flex items-center gap-2">
-                                    <Target size={10} /> {civ.doctrine.name}
-                                </span>
+                                <Tooltip content={<div className="max-w-[200px]"><strong>{civ.doctrine.name}</strong><br/>{civ.doctrine.description}<br/><br/><em>Focus: {civ.doctrine.ecoFocus} Economy</em></div>} position="bottom">
+                                    <span className="text-[10px] font-bold text-amber-500 px-2 py-0.5 rounded-lg bg-amber-500/10 border border-amber-500/20 uppercase tracking-widest flex items-center gap-2 cursor-help">
+                                        <Target size={10} /> {civ.doctrine.name}
+                                    </span>
+                                </Tooltip>
                             )}
                             <span className="text-[10px] font-bold text-orange-500 px-2 py-0.5 rounded-lg bg-orange-500/10 border border-orange-500/20 uppercase tracking-widest">
                                 {civ.primaryCategory.split('–')[0].trim()} Focus

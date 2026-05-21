@@ -91,6 +91,7 @@ export interface DoctrineTemplate {
 export interface PlayerCiv {
     id: string;
     playerName: string;
+    civName: string;
     pointsSpent: number;
     items: GeneratedItem[];
     ratings: {
@@ -112,6 +113,8 @@ export interface PlayerCiv {
         id: string;
         name: string;
         winCondition: string;
+        description: string;
+        ecoFocus: string;
     };
 }
 
