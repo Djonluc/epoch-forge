@@ -317,7 +317,7 @@ export const ARCHETYPES: Archetype[] = [
 ];
 
 export const DEFAULT_NAMES = [
-    'Taco', 'Piert', 'DjonLuc', 'Justin', 'Naldo', 'Pash', 'Kuban', "Player 8", "Player 9", "Player 10"
+    'Taco', 'Justin', 'Djon', 'Piert', 'Naldo', 'Pash', 'Kuban', "Player 8", "Player 9", "Player 10"
 ];
 
 // Headings with their inflation costs (Multiple Bonus Cost)
@@ -463,11 +463,11 @@ export const CIV_POWERS: CivPower[] = [
     { name: "Emissaries", cost: 20, minEpoch: 3, maxEpoch: 15, tags: [GamePhase.MID], description: "Priests are cloaked/invisible until they attempt a conversion.", meta: { strategyTags: ["Religion", "Stealth", "Magic"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: [], role: "Support" } },
     { name: "Camouflage", cost: 25, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID, GamePhase.LATE], description: "Idle units become cloaked/invisible to enemies without detection.", meta: { strategyTags: ["Stealth", "Defensive", "Tactical"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core" } },
     { name: "Cloaking", cost: 25, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID, GamePhase.LATE], description: "Capitols and Town Centers cloak all friendly units and structures in a wide radius.", meta: { strategyTags: ["Stealth", "Defensive", "Turtle"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: ["Rush"], role: "Core" } },
-    { name: "Tower of Babylon", cost: 30, minEpoch: 3, maxEpoch: 15, tags: [GamePhase.MID], description: "Unlocks area-of-effect conversion for Priests — mass-convert entire enemy formations in a single pulse.", meta: { strategyTags: ["Religion", "Magic", "Area", "Tactical"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle", "prophet_warfare"], antiSynergyTags: ["Rush"], role: "Core" } },
-    { name: "Temple of Zeus", cost: 30, minEpoch: 5, maxEpoch: 15, tags: [GamePhase.MID, GamePhase.LATE], description: "All units regenerate health automatically as if near a Hospital — permanent civilization-wide healing.", meta: { strategyTags: ["Defensive", "Durability", "Scaling"], terrainAffinity: ["land", "mixed", "space"], doctrineAffinity: ["defensive_turtle", "mechanized_assault", "wonder_race"], antiSynergyTags: [], role: "Core" } },
-    { name: "Coliseum", cost: 25, minEpoch: 3, maxEpoch: 15, tags: [GamePhase.MID, GamePhase.LATE], description: "+20% population capacity for your civilization and −20% for all enemies — a permanent population-denial weapon.", meta: { strategyTags: ["Boom", "Swarm", "Late", "Denial"], terrainAffinity: ["land", "mixed", "space"], doctrineAffinity: ["economic_boom", "wonder_race", "infantry_rush"], antiSynergyTags: [], role: "Scaling" } },
-    { name: "Robotic Farms", cost: 20, minEpoch: 15, maxEpoch: 15, tags: [GamePhase.LATE], description: "Farms automatically harvest food with no citizens required, freeing your entire civilian workforce for combat.", meta: { strategyTags: ["Boom", "Space", "Automation", "Late"], terrainAffinity: ["space"], doctrineAffinity: ["economic_boom", "cyber_dominance"], antiSynergyTags: ["Rush"], role: "Tech" } },
-    { name: "Orbital Station", cost: 15, minEpoch: 15, maxEpoch: 15, tags: [GamePhase.LATE], description: "Provides maximum morale to all spaceships — the definitive Space Age naval force multiplier.", meta: { strategyTags: ["Naval", "Space", "Morale", "Late"], terrainAffinity: ["space"], doctrineAffinity: ["naval_domination"], antiSynergyTags: [], role: "Support" } },
+    { name: "Insurance", cost: 20, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID, GamePhase.LATE], description: "When a unit is killed, a portion of the resources it cost are returned to you.", meta: { strategyTags: ["Economy", "Attrition", "Swarm"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["infantry_rush", "siege_attrition"], antiSynergyTags: [], role: "Support" } },
+    { name: "Flaming Arrows", cost: 25, minEpoch: 3, maxEpoch: 7, tags: [GamePhase.EARLY, GamePhase.MID], description: "Bowmen shoot fire arrows that cause buildings to catch fire and spread.", meta: { strategyTags: ["Military", "Siege", "Ranged"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["infantry_rush"], antiSynergyTags: [], role: "Core", unitFocus: ["Infantry"] } },
+    { name: "Fanaticism", cost: 15, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID], description: "Barracks and Capitol units can become fanatics (more attack, less HP).", meta: { strategyTags: ["Military", "Attack", "Swarm"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["infantry_rush", "guerilla_warfare"], antiSynergyTags: ["Turtle"], role: "Support", unitFocus: ["Infantry"] } },
+    { name: "Paratroopers", cost: 15, minEpoch: 11, maxEpoch: 15, tags: [GamePhase.LATE], description: "Unlocks Paratroop Planes to instantly drop troops at any waypoint.", meta: { strategyTags: ["Mobility", "Air", "Raiding"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["air_superiority", "guerilla_warfare"], antiSynergyTags: [], role: "Support", unitFocus: ["Infantry", "Aircraft"] } },
+    { name: "Metallurgy", cost: 30, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.MID, GamePhase.LATE], description: "Can use gold and iron interchangeably to pay for units.", meta: { strategyTags: ["Economy", "Flexibility", "Industrial"], terrainAffinity: ["land", "mixed", "space"], doctrineAffinity: ["economic_boom"], antiSynergyTags: [], role: "Core" } },
 ];
 
 export const SYNERGIES: SynergyRule[] = [
@@ -527,9 +527,9 @@ export const SYNERGIES: SynergyRule[] = [
         description: "Crusading knights whose battlefield conversions sweep through entire tight clusters of enemies."
     },
     {
-        name: "Coliseum Economy",
-        items: ["Coliseum", "15% Population Cap"],
-        description: "Pop-denial plus internal expansion — your armies grow while enemy forces are permanently capped."
+        name: "Phoenix Protocol",
+        items: ["Insurance", "Just-In-Time Manufacturing"],
+        description: "Endless swarms of units that refund their cost upon death and instantly respawn."
     },
     {
         name: "Morale Wall",
@@ -537,9 +537,9 @@ export const SYNERGIES: SynergyRule[] = [
         description: "Near-indestructible towers with extended reach — any attacker walks into a wall of attrition."
     },
     {
-        name: "Prophet Wrath",
-        items: ["Tower of Babylon", "50% Conversion Area"],
-        description: "Priests cast area conversions with doubled radius — entire armies defect in a single divine pulse."
+        name: "Scorched Earth",
+        items: ["Flaming Arrows", "20% Attack (Ranged Inf)"],
+        description: "Devastating archer blobs that rapidly burn down both units and structures."
     },
     {
         name: "Cyber Army",

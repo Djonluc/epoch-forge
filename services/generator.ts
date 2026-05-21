@@ -285,6 +285,7 @@ export const generateCivForPlayer = (
                 cost: selection.cost,
                 originalCost: selection.cost,
                 type: 'power',
+                category: 'Strategic Powers',
                 description: selection.description,
                 trace: 'Strategic Power Allocation'
             });
@@ -383,6 +384,7 @@ export const generateCivForPlayer = (
                 cost: p.cost,
                 originalCost: p.cost,
                 type: 'power',
+                category: 'Strategic Powers',
                 description: p.description,
                 trace
             });

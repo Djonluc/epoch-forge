@@ -20,7 +20,8 @@ export type BoostCategory =
     | "Aircraft"
     | "Ships"
     | "Cyber"
-    | "Religion";
+    | "Religion"
+    | "Strategic Powers";
 
 export interface Heading {
     name: BoostCategory;

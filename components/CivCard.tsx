@@ -198,17 +198,12 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
                         </div>
                         <p className="text-lg text-slate-300 font-medium leading-[1.6] italic tracking-tight mb-4">
                             "{civ.summary}"
-                            <button onClick={() => setShowReasoning(!showReasoning)} className="ml-3 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#5B8CFF] hover:text-white bg-[#5B8CFF]/10 hover:bg-[#5B8CFF]/20 border border-[#5B8CFF]/30 rounded-lg transition-all">
-                                [ Why this build? ]
-                            </button>
                         </p>
-                        {showReasoning && (
-                            <div className="animate-fade-in mb-6 p-6 bg-[#0F1117] rounded-3xl border-2 border-white/5 font-mono text-xs text-slate-500 leading-relaxed relative">
-                                <div className="absolute top-2 right-4 text-[8px] font-bold text-slate-700 uppercase">Cognitive Log</div>
-                                <CornerDownRight size={14} className="inline mr-2 text-orange-500/40" />
-                                {civ.reasoning}
-                            </div>
-                        )}
+                        <div className="animate-fade-in mb-6 p-6 bg-[#0F1117] rounded-3xl border-2 border-white/5 font-mono text-xs text-slate-500 leading-relaxed relative">
+                            <div className="absolute top-2 right-4 text-[8px] font-bold text-slate-700 uppercase">Cognitive Log</div>
+                            <CornerDownRight size={14} className="inline mr-2 text-orange-500/40" />
+                            {civ.reasoning}
+                        </div>
                     </div>
                 </div>
             )}
@@ -278,13 +273,22 @@ export const CivCard: React.FC<Props> = ({ civ, onReroll, index, isCompact = fal
                                                 const explanation = getCostExplanation(item);
                                                 const hasSynergy = civ.synergies.some(s => s.items.includes(item.name));
 
+                                                const isPower = item.type === 'power';
+
                                                 return (
-                                                    <div key={idx} className="flex justify-between items-center p-3 px-5 rounded-xl bg-[#0F1117] hover:bg-white/5 transition-all group border-2 border-transparent hover:border-white/5">
-                                                        <div className="flex items-center gap-4">
-                                                            <div className={`w-1.5 h-1.5 rounded-full ${hasSynergy ? 'bg-cyan-400 animate-pulse' : 'bg-slate-800'}`} />
-                                                            <Tooltip content={item.description} position="left">
-                                                                <span className="text-sm font-bold text-slate-500 group-hover:text-slate-200 transition-all cursor-help">{item.name}</span>
-                                                            </Tooltip>
+                                                    <div key={idx} className={`flex justify-between items-center p-3 px-5 rounded-xl transition-all group border-2 ${isPower ? 'bg-amber-500/5 hover:bg-amber-500/10 border-amber-500/20' : 'bg-[#0F1117] hover:bg-white/5 border-transparent hover:border-white/5'}`}>
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center gap-4">
+                                                                <div className={`w-1.5 h-1.5 rounded-full ${hasSynergy ? 'bg-cyan-400 animate-pulse' : (isPower ? 'bg-amber-500' : 'bg-slate-800')}`} />
+                                                                <Tooltip content={isPower ? undefined : item.description} position="left">
+                                                                    <span className={`text-sm font-bold transition-all cursor-help ${isPower ? 'text-amber-400' : 'text-slate-500 group-hover:text-slate-200'}`}>{item.name}</span>
+                                                                </Tooltip>
+                                                            </div>
+                                                            {isPower && item.description && (
+                                                                <p className="pl-5 mt-1 text-[10px] text-amber-500/70 font-mono tracking-tight leading-relaxed max-w-sm">
+                                                                    {item.description}
+                                                                </p>
+                                                            )}
                                                         </div>
                                                         <div className="flex items-center gap-4">
                                                             {hasSynergy && (
