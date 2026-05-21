@@ -2,21 +2,21 @@
 import { Boost, BoostCategory, CivPower, Heading, GamePhase, MapType, PresetMode, PointUsageMode, Archetype, SynergyRule, MapInfo, MapSize, Resources, GameSpeed, DoctrineTemplate } from './types';
 
 export const EPOCHS = [
-    { id: 1, name: "Stone Age" },
-    { id: 2, name: "Tool Age" },
+    { id: 1, name: "Prehistoric Age" },
+    { id: 2, name: "Stone Age" },
     { id: 3, name: "Copper Age" },
     { id: 4, name: "Bronze Age" },
     { id: 5, name: "Dark Age" },
     { id: 6, name: "Middle Ages" },
     { id: 7, name: "Renaissance" },
     { id: 8, name: "Imperial Age" },
-    { id: 9, name: "Enlightenment Age" },
-    { id: 10, name: "Industrial Age" },
-    { id: 11, name: "Atomic Age" },
-    { id: 12, name: "Information Age" },
-    { id: 13, name: "Nano Age" },
-    { id: 14, name: "Space Age" },
-    { id: 15, name: "Digital Age" },
+    { id: 9, name: "Industrial Age" },
+    { id: 10, name: "Atomic Age – WWI" },
+    { id: 11, name: "Atomic Age – WWII" },
+    { id: 12, name: "Atomic Age – Modern" },
+    { id: 13, name: "Digital Age" },
+    { id: 14, name: "Nano Age" },
+    { id: 15, name: "Space Age" },
 ];
 
 export interface MapStrategicWeights {
@@ -221,6 +221,54 @@ export const DOCTRINES: DoctrineTemplate[] = [
         militaryIdentity: 'Heavy',
         mapPreference: ['land', 'mixed', 'space'],
         winCondition: 'Armored Breakthrough'
+    },
+    {
+        id: 'prophet_warfare',
+        name: 'Prophet Warfare',
+        description: 'Use Temple and Prophet units to rain calamities on enemy bases while Priests convert exposed armies.',
+        preferredTags: ['Religion', 'Magic', 'Area', 'Tactical'],
+        forbiddenTags: ['Rush', 'Cheap'],
+        priorityCategories: ['Religion', 'Civ – General'],
+        ecoFocus: 'Stable',
+        militaryIdentity: 'Elite',
+        mapPreference: ['land', 'mixed'],
+        winCondition: 'Divine Annihilation'
+    },
+    {
+        id: 'cyber_dominance',
+        name: 'Cyber Dominance',
+        description: 'Build an unstoppable force of late-game Cyber units backed by total technological supremacy.',
+        preferredTags: ['Cyber', 'Tech', 'Late', 'Heavy'],
+        forbiddenTags: ['Rush', 'Early', 'Cheap'],
+        priorityCategories: ['Cyber', 'Civ – Economy'],
+        ecoFocus: 'Greedy',
+        militaryIdentity: 'Elite',
+        mapPreference: ['land', 'mixed', 'space'],
+        winCondition: 'Machine Supremacy'
+    },
+    {
+        id: 'wonder_race',
+        name: 'Wonder Race',
+        description: 'Rush to construct game-changing Wonders before opponents and leverage their civilization-wide effects.',
+        preferredTags: ['Boom', 'Scaling', 'Late', 'Defensive'],
+        forbiddenTags: ['Rush', 'Cheap'],
+        priorityCategories: ['Civ – Economy', 'Civ – Buildings, Walls & Towers'],
+        ecoFocus: 'Greedy',
+        militaryIdentity: 'Heavy',
+        mapPreference: ['land', 'mixed', 'space'],
+        winCondition: 'Wonders of the World'
+    },
+    {
+        id: 'fast_epoch',
+        name: 'Fast Epoch',
+        description: 'Sacrifice early military for rapid epoch advancement, winning on the unit quality differential of being epochs ahead.',
+        preferredTags: ['Tech', 'Scaling', 'Late', 'Boom'],
+        forbiddenTags: ['Rush', 'Early'],
+        priorityCategories: ['Civ – Economy', 'Citizens & Fishing Boats'],
+        ecoFocus: 'Greedy',
+        militaryIdentity: 'Elite',
+        mapPreference: ['land', 'mixed', 'space'],
+        winCondition: 'Technological Leap'
     }
 ];
 
@@ -415,6 +463,11 @@ export const CIV_POWERS: CivPower[] = [
     { name: "Emissaries", cost: 20, minEpoch: 3, maxEpoch: 15, tags: [GamePhase.MID], description: "Priests are cloaked/invisible until they attempt a conversion.", meta: { strategyTags: ["Religion", "Stealth", "Magic"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: [], role: "Support" } },
     { name: "Camouflage", cost: 25, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID, GamePhase.LATE], description: "Idle units become cloaked/invisible to enemies without detection.", meta: { strategyTags: ["Stealth", "Defensive", "Tactical"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["guerilla_warfare"], antiSynergyTags: [], role: "Core" } },
     { name: "Cloaking", cost: 25, minEpoch: 1, maxEpoch: 15, tags: [GamePhase.EARLY, GamePhase.MID, GamePhase.LATE], description: "Capitols and Town Centers cloak all friendly units and structures in a wide radius.", meta: { strategyTags: ["Stealth", "Defensive", "Turtle"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle"], antiSynergyTags: ["Rush"], role: "Core" } },
+    { name: "Tower of Babylon", cost: 30, minEpoch: 3, maxEpoch: 15, tags: [GamePhase.MID], description: "Unlocks area-of-effect conversion for Priests — mass-convert entire enemy formations in a single pulse.", meta: { strategyTags: ["Religion", "Magic", "Area", "Tactical"], terrainAffinity: ["land", "mixed"], doctrineAffinity: ["defensive_turtle", "prophet_warfare"], antiSynergyTags: ["Rush"], role: "Core" } },
+    { name: "Temple of Zeus", cost: 30, minEpoch: 5, maxEpoch: 15, tags: [GamePhase.MID, GamePhase.LATE], description: "All units regenerate health automatically as if near a Hospital — permanent civilization-wide healing.", meta: { strategyTags: ["Defensive", "Durability", "Scaling"], terrainAffinity: ["land", "mixed", "space"], doctrineAffinity: ["defensive_turtle", "mechanized_assault", "wonder_race"], antiSynergyTags: [], role: "Core" } },
+    { name: "Coliseum", cost: 25, minEpoch: 3, maxEpoch: 15, tags: [GamePhase.MID, GamePhase.LATE], description: "+20% population capacity for your civilization and −20% for all enemies — a permanent population-denial weapon.", meta: { strategyTags: ["Boom", "Swarm", "Late", "Denial"], terrainAffinity: ["land", "mixed", "space"], doctrineAffinity: ["economic_boom", "wonder_race", "infantry_rush"], antiSynergyTags: [], role: "Scaling" } },
+    { name: "Robotic Farms", cost: 20, minEpoch: 15, maxEpoch: 15, tags: [GamePhase.LATE], description: "Farms automatically harvest food with no citizens required, freeing your entire civilian workforce for combat.", meta: { strategyTags: ["Boom", "Space", "Automation", "Late"], terrainAffinity: ["space"], doctrineAffinity: ["economic_boom", "cyber_dominance"], antiSynergyTags: ["Rush"], role: "Tech" } },
+    { name: "Orbital Station", cost: 15, minEpoch: 15, maxEpoch: 15, tags: [GamePhase.LATE], description: "Provides maximum morale to all spaceships — the definitive Space Age naval force multiplier.", meta: { strategyTags: ["Naval", "Space", "Morale", "Late"], terrainAffinity: ["space"], doctrineAffinity: ["naval_domination"], antiSynergyTags: [], role: "Support" } },
 ];
 
 export const SYNERGIES: SynergyRule[] = [
@@ -430,7 +483,7 @@ export const SYNERGIES: SynergyRule[] = [
     },
     {
         name: "Hussar Rush",
-        items: ["20% Speed (Cavalry)", "30% Build Time (Cavalry)"],
+        items: ["20% Speed (Cav Melee)", "30% Build Time (Cav Melee)"],
         description: "Lightning-fast raids that overwhelm opponents before they can react."
     },
     {
@@ -472,5 +525,25 @@ export const SYNERGIES: SynergyRule[] = [
         name: "Holy Crusade",
         items: ["Crusaders", "30% Hit Points (Priests)"],
         description: "Crusading knights whose battlefield conversions sweep through entire tight clusters of enemies."
+    },
+    {
+        name: "Coliseum Economy",
+        items: ["Coliseum", "15% Population Cap"],
+        description: "Pop-denial plus internal expansion — your armies grow while enemy forces are permanently capped."
+    },
+    {
+        name: "Morale Wall",
+        items: ["50% Hit Points (Buildings)", "20% Range (Buildings)"],
+        description: "Near-indestructible towers with extended reach — any attacker walks into a wall of attrition."
+    },
+    {
+        name: "Prophet Wrath",
+        items: ["Tower of Babylon", "50% Conversion Area"],
+        description: "Priests cast area conversions with doubled radius — entire armies defect in a single divine pulse."
+    },
+    {
+        name: "Cyber Army",
+        items: ["Just-In-Time Manufacturing", "20% Attack (Cyber)"],
+        description: "Faster production pipelines feed a relentless wave of high-damage Cyber units."
     }
 ];

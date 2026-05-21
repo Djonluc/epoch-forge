@@ -211,11 +211,11 @@ const selectDoctrine = (rng: SeededRNG, config: ResolvedAppConfig, archetype: Co
 
     // Archetype Influence — reduced from 5:1 to 3:1 ratio
     const archetypeMap: Record<ConcreteArchetype, string[]> = {
-        'Economic': ['economic_boom', 'air_superiority'],
-        'Aggressive': ['infantry_rush', 'guerilla_warfare', 'mechanized_assault'],
-        'Defensive': ['defensive_turtle', 'siege_attrition'],
+        'Economic': ['economic_boom', 'air_superiority', 'wonder_race', 'fast_epoch'],
+        'Aggressive': ['infantry_rush', 'guerilla_warfare', 'mechanized_assault', 'cyber_dominance'],
+        'Defensive': ['defensive_turtle', 'siege_attrition', 'wonder_race', 'prophet_warfare'],
         'Naval': ['naval_domination'],
-        'Balanced': ['economic_boom', 'infantry_rush', 'guerilla_warfare', 'defensive_turtle']
+        'Balanced': ['economic_boom', 'infantry_rush', 'guerilla_warfare', 'defensive_turtle', 'wonder_race']
     };
 
     const preferredIds = archetypeMap[archetype] || [];
