@@ -447,7 +447,13 @@ export const generateCivForPlayer = (
         playerName,
         civName,
         pointsSpent: 100 - points,
-        items: items.sort((a, b) => (a.category || '').localeCompare(b.category || '')),
+        items: items.sort((a, b) => {
+            const catA = a.category || '';
+            const catB = b.category || '';
+            if (catA === 'Strategic Powers' && catB !== 'Strategic Powers') return -1;
+            if (catB === 'Strategic Powers' && catA !== 'Strategic Powers') return 1;
+            return catA.localeCompare(catB);
+        }),
         ratings: {
             early: normalize(ratings.early),
             mid: normalize(ratings.mid),
