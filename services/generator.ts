@@ -40,6 +40,14 @@ export class SeededRNG {
 export const resolveMatchConfig = (config: AppConfig): ResolvedAppConfig => {
     const rng = new SeededRNG(config.seed);
 
+    // Resolve endEpoch first, since it determines map type filtering
+    let endEpoch = config.endEpoch;
+    if (config.isEndEpochRandom) {
+        const min = config.endEpochMin;
+        const max = config.endEpochMax;
+        endEpoch = Math.floor(rng.next() * (max - min + 1)) + min;
+    }
+
     // --- Helper: Generic Option Resolver ---
     // Picks Fixed Value or Randomly from Allowed Pool
     const resolveOption = <T>(option: RandomizableOption<T>, defaultValue: T, fallbackPool: T[]): T => {
@@ -58,7 +66,7 @@ export const resolveMatchConfig = (config: AppConfig): ResolvedAppConfig => {
         let pool = config.mapType.allowed.length ? config.mapType.allowed : MAP_TYPES;
 
         // Filter out Planets if Era is too early
-        if (config.endEpoch < 14) {
+        if (endEpoch < 14) {
             pool = pool.filter(m => !m.startsWith('Planets'));
         }
 
@@ -91,7 +99,7 @@ export const resolveMatchConfig = (config: AppConfig): ResolvedAppConfig => {
         }),
         playerArchetypes: [], // Filled below
         startEpoch: config.startEpoch,
-        endEpoch: config.endEpoch,
+        endEpoch,
         seed: config.seed, // Persist seed
 
         // Resolved Values
@@ -342,7 +350,7 @@ export const generateCivForPlayer = (
         return heading && heading.minEpoch <= config.endEpoch;
     });
 
-    const validPowers = CIV_POWERS.filter(p => p.minEpoch <= config.endEpoch);
+    const validPowers = CIV_POWERS.filter(p => p.minEpoch <= config.endEpoch && p.maxEpoch >= config.startEpoch);
 
     // Helper to get dynamic cost
     const getBoostCost = (boost: Boost) => {
